@@ -1,32 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2020/12/21/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Docker部署MongoDB分片+副本集集群（实战）</title>
     <url>/2020/12/10/datebases/mongodb/</url>
     <content><![CDATA[<p>在实际生产环境中，我们往往需要对数据进行分片，以满足业务的需求，本文将介绍如何使用Docker部署MongoDB分片+副本集集群。</p>
@@ -123,6 +97,32 @@
       </categories>
       <tags>
         <tag>MongoDB</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2020/12/21/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
