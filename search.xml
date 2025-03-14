@@ -1,6 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Log-pilot日志采集收集java堆栈异常日志</title>
+    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
+    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
+<span id="more"></span>
+<hr>
+<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
+<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
+<pre><code> 参数详情：
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
+<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>日志采集</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Docker部署MongoDB分片+副本集集群（实战）</title>
     <url>/2020/12/10/datebases/mongodb/</url>
     <content><![CDATA[<p>在实际生产环境中，我们往往需要对数据进行分片，以满足业务的需求，本文将介绍如何使用Docker部署MongoDB分片+副本集集群。</p>
@@ -123,26 +143,6 @@
       </categories>
       <tags>
         <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Log-pilot日志采集收集java堆栈异常日志</title>
-    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
-    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
-<span id="more"></span>
-<hr>
-<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
-<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
-<pre><code> 参数详情：
-</code></pre>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
-<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>日志采集</tag>
       </tags>
   </entry>
 </search>
