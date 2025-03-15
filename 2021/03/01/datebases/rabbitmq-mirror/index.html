@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.kocdyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="RabbitMQ简介RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Dokcer 部署RabbitMQ集群-镜像模式（实战）">
+<meta property="og:url" content="http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/index.html">
+<meta property="og:site_name" content="Lupin Lao">
+<meta property="og:description" content="RabbitMQ简介RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="http://blog.kocdyun.top/images/article_image/rabbitmq_mirror_4.png">
+<meta property="article:published_time" content="2021-03-01T07:00:00.000Z">
+<meta property="article:modified_time" content="2025-03-15T03:26:17.522Z">
+<meta property="article:author" content="Lupin Lao">
+<meta property="article:tag" content="Docker">
+<meta property="article:tag" content="rabbitmq">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="http://blog.kocdyun.top/images/article_image/rabbitmq_mirror_4.png">
+
+
+<link rel="canonical" href="http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/","path":"2021/03/01/datebases/rabbitmq-mirror/","title":"Dokcer 部署RabbitMQ集群-镜像模式（实战）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Dokcer 部署RabbitMQ集群-镜像模式（实战） | Lupin Lao</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lupin Lao</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">奔赴山海，保持热爱</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#RabbitMQ%E7%AE%80%E4%BB%8B"><span class="nav-number">1.</span> <span class="nav-text">RabbitMQ简介</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RabbitMQ%E6%A8%A1%E5%BC%8F%E8%AF%A6%E8%A7%A3"><span class="nav-number">2.</span> <span class="nav-text">RabbitMQ模式详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%8E%AF%E5%A2%83%E8%AF%B4%E6%98%8E"><span class="nav-number">3.</span> <span class="nav-text">环境说明</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%BB%E6%9C%BA%E5%88%97%E8%A1%A8"><span class="nav-number">3.1.</span> <span class="nav-text">主机列表</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2RabbitMQ"><span class="nav-number">4.</span> <span class="nav-text">部署RabbitMQ</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E6%8C%81%E4%B9%85%E6%95%B0%E6%8D%AE%E7%9B%AE%E5%BD%95"><span class="nav-number">4.1.</span> <span class="nav-text">创建持久数据目录</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#host%E9%85%8D%E7%BD%AE-rabbitmq%E9%9B%86%E7%BE%A4%E9%9C%80%E8%A6%81%E8%A7%A3%E6%9E%90%E4%B8%BB%E6%9C%BA%E5%90%8D"><span class="nav-number">4.2.</span> <span class="nav-text">host配置(rabbitmq集群需要解析主机名)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%AE%B9%E5%99%A8"><span class="nav-number">4.3.</span> <span class="nav-text">创建容器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-number">4.3.1.</span> <span class="nav-text">参数说明</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86%E8%8A%82%E7%82%B92-3%E5%8A%A0%E5%85%A5%E9%9B%86%E7%BE%A4"><span class="nav-number">4.4.</span> <span class="nav-text">将节点2,3加入集群</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%89%B9%E5%88%AB%E8%AF%B4%E6%98%8E%EF%BC%9A"><span class="nav-number">4.4.1.</span> <span class="nav-text">特别说明：</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%85%8D%E7%BD%AE%E9%95%9C%E5%83%8F%E9%9B%86%E7%BE%A4%E7%AD%96%E7%95%A5"><span class="nav-number">4.5.</span> <span class="nav-text">配置镜像集群策略</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%BC%80%E5%90%AF%E9%95%9C%E5%83%8F%E9%9B%86%E7%BE%A4%E6%A8%A1%E5%BC%8F"><span class="nav-number">4.5.1.</span> <span class="nav-text">开启镜像集群模式</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#RabbitMQ%E7%9B%91%E6%8E%A7"><span class="nav-number">5.</span> <span class="nav-text">RabbitMQ监控</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%90%AF%E7%94%A8rabbitmq-prometheus"><span class="nav-number">5.1.</span> <span class="nav-text">启用rabbitmq_prometheus</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Lupin Lao"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Lupin Lao</p>
+  <div class="site-description" itemprop="description">分享自己对技术的理解，收录优秀的文章</div>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/laoshangcai" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;laoshangcai" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:laoshangcce@163.com" title="E-Mail → mailto:laoshangcce@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  <div class="post-gallery" itemscope itemtype="http://schema.org/ImageGallery">
+    
+    <div class="post-gallery-image">
+      <img src="/images/article_image/rabbitmq_mirror_4.png" itemprop="contentUrl">
+    </div>
+    </div>
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Lupin Lao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lupin Lao">
+      <meta itemprop="description" content="分享自己对技术的理解，收录优秀的文章">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Dokcer 部署RabbitMQ集群-镜像模式（实战） | Lupin Lao">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Dokcer 部署RabbitMQ集群-镜像模式（实战）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-03-01 15:00:00" itemprop="dateCreated datePublished" datetime="2021-03-01T15:00:00+08:00">2021-03-01</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-15 11:26:17" itemprop="dateModified" datetime="2025-03-15T11:26:17+08:00">2025-03-15</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/" itemprop="url" rel="index"><span itemprop="name">数据库</span></a>
+        </span>
+          ，
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E6%95%B0%E6%8D%AE%E5%BA%93/RabbitMQ/" itemprop="url" rel="index"><span itemprop="name">RabbitMQ</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。</p>
+<span id="more"></span>
+
+<hr>
+<p>RabbitMQ部署模式大概分为以下三种:</p>
+<ol>
+<li>单一模式。</li>
+<li>普通模式(默认的集群模式)。</li>
+<li>镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbitMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。</li>
+</ol>
+<h1 id="RabbitMQ模式详解"><a href="#RabbitMQ模式详解" class="headerlink" title="RabbitMQ模式详解"></a>RabbitMQ模式详解</h1><p>abbitmq普通集群模式，是将交换机、绑定、队列的元数据复制到集群里的任何一个节点，但队列内容只存在于特定的节点中，客户端通过连接集群中任意一个节点，即可以生产和消费集群中的任何队列内容（因为每个节点都有集群中所有队列的元数据信息，如果队列内容不在本节点，则本节点会从远程节点获取内容，然后提供给消费者消费）。<br>从该模式不难看出，普通集群可以让不同的繁忙队列从属于不同的节点，这样可以减轻单节点的压力，提升吞吐量，但是普通集群不能保证队列的高可用性，因为一旦队列所在节点宕机直接导致该队列无法使用，只能等待重启，所以要想在队列节点宕机或故障也能正常使用，就要复制队列内容到集群里的每个节点，需要创建镜像队列。<br>rabbitmq镜像集群依赖于普通集群，所以需要先搭建rabbitmq普通集群。</p>
+<h1 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h1><p>要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用，本次实践部署rabbitmq采用的版本（rabbitmq:3.8.7-management）。</p>
+<h2 id="主机列表"><a href="#主机列表" class="headerlink" title="主机列表"></a>主机列表</h2><table>
+<thead>
+<tr>
+<th>主机</th>
+<th>节点模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.1.32</td>
+<td>磁盘节点</td>
+</tr>
+<tr>
+<td>192.168.1.33</td>
+<td>内存节点</td>
+</tr>
+<tr>
+<td>192.168.1.35</td>
+<td>内存节点</td>
+</tr>
+</tbody></table>
+<h1 id="部署RabbitMQ"><a href="#部署RabbitMQ" class="headerlink" title="部署RabbitMQ"></a>部署RabbitMQ</h1><h2 id="创建持久数据目录"><a href="#创建持久数据目录" class="headerlink" title="创建持久数据目录"></a>创建持久数据目录</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mkdir /data/rabbitmq -p   //三台主机均执行</span><br></pre></td></tr></table></figure>
+<h2 id="host配置-rabbitmq集群需要解析主机名"><a href="#host配置-rabbitmq集群需要解析主机名" class="headerlink" title="host配置(rabbitmq集群需要解析主机名)"></a>host配置(rabbitmq集群需要解析主机名)</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">cd /data/rabbitmq</span><br><span class="line">vim hosts</span><br><span class="line"># hosts 内容</span><br><span class="line">192.168.1.32 rabbit1</span><br><span class="line">192.168.1.33 rabbit2</span><br><span class="line">192.168.1.35 rabbit3</span><br></pre></td></tr></table></figure>
+
+<h2 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit1 \</span><br><span class="line">  --name rabbit1  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit2 \</span><br><span class="line">  --name rabbit2  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit3 \</span><br><span class="line">  --name rabbit3  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line"></span><br><span class="line">注意：hostname 不要重复</span><br></pre></td></tr></table></figure>
+
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">-d</span><br><span class="line">#容器后台运行</span><br><span class="line">--restart=always</span><br><span class="line"># 容器重启策略, always 在容器退出时总是重启容器</span><br><span class="line">--net host</span><br><span class="line">#容器和宿主机共用网络(注意端口冲突)</span><br><span class="line">--hostname rabbit1</span><br><span class="line">#容器的主机名为 rabbit1，容器内部的hostname</span><br><span class="line">--name rabbit1</span><br><span class="line">#容器名为rabbit1，在宿主机上运行“docker ps”命令时显示的名称</span><br><span class="line">-v /data/rabbitmq:/var/lib/rabbitmq</span><br><span class="line">#将宿主机目录/data/rabbitmq挂载到容器的/var/lib/rabbitmq目录</span><br><span class="line">-v /data/rabbitmq/hosts:/etc/hosts</span><br><span class="line">#将宿主机目录/data/rabbitmq/hosts文件挂载到容器的/etc/hosts文件</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=user01</span><br><span class="line">#设置rabbitmq默认用户为user01</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=password01</span><br><span class="line">#设置rabbitmq默认密码为password01</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie&#x27;</span><br><span class="line">#设置rabbitmq的cookie为“secret cookie”，可以自定义为其他文本，三个容器保持一致即可。</span><br><span class="line">rabbitmq:3.8.7-management</span><br><span class="line">#使用rabbitmq:3.8.7-management这个镜像</span><br></pre></td></tr></table></figure>
+
+<p><em><strong>三台机器都执行上面的命令,hostname和容器name需要修改</strong></em></p>
+<h2 id="将节点2-3加入集群"><a href="#将节点2-3加入集群" class="headerlink" title="将节点2,3加入集群"></a>将节点2,3加入集群</h2><p>在rabbit2机器进入容器的命令行</p>
+<pre><code>docker exec -it rabbit2 /bin/bash
+加入集群
+rabbitmqctl stop_app
+rabbitmqctl join_cluster rabbit@rabbit1
+rabbitmqctl join_cluster rabbit@rabbit1 --ram  //表示该节点为内存节点，默认为磁盘节点。
+rabbitmqctl start_app
+rabbit3执行相同的命令
+
+查询集群状态
+rabbitmqctl cluster_status
+</code></pre>
+<h3 id="特别说明："><a href="#特别说明：" class="headerlink" title="特别说明："></a>特别说明：</h3><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"># 在上述部署已完成的情况下更改节点模式(硬盘模式-disc、内存模式-ram)</span><br><span class="line"># 更改节点: rabbit@rabbit2为硬盘模式,操作如下：</span><br><span class="line"># 进入任意容器内</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 stop_app</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 change_cluster_node_type disc</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 start_app</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置镜像集群策略"><a href="#配置镜像集群策略" class="headerlink" title="配置镜像集群策略"></a>配置镜像集群策略</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">新添加用户</span><br><span class="line">rabbitmqctl list_users     //查看用户列表</span><br><span class="line">rabbitmqctl add_user admin 123456   //新增用户、密码</span><br><span class="line">rabbitmqctl set_user_tags admin administrator  // 设置admin用户标记，administrator表示最高权限</span><br><span class="line">rabbitmqctl set_permissions -p &quot;/&quot; admin &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;   //设置权限</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启镜像集群模式"><a href="#开启镜像集群模式" class="headerlink" title="开启镜像集群模式"></a>开启镜像集群模式</h3><p>搭建镜像集群是在web控制台完成的，主要操作就是在Admin界面添加一个Policy<br>添加策略：登录rabbitmq管理页面 ——&gt; Admin ——&gt; Policies ——&gt; Add &#x2F; update a policy，填写对应的镜像策略。<br><img src="/images/article_image/rabbitmq_mirror_1.png" alt="Alt"><br><img src="/images/article_image/rabbitmq_mirror_2.png" alt="Alt"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Policy参数含义</span><br><span class="line">pattern: 队列名字的通配符 或者 ^ 匹配符，只有一个^代表匹配所有</span><br><span class="line">ha-mode：镜像队列提供了三种模式：</span><br><span class="line">        all：全部的节点队列都做镜像；</span><br><span class="line">        exactly：指定镜像队列的节点最高镜像数量；</span><br><span class="line">        nodes：只为指定具体节点配置镜像队列；</span><br><span class="line">ha-sync-mode ：节点之前的同步模式。有自动和手动两种，默认是手动，这里设置为自动。</span><br></pre></td></tr></table></figure>
+
+<p>设置完成并添加了这个策略后，新建的和已存在的队列默认会支持此策略。</p>
+<p>出现如下图所示，表示配置完成<br><img src="/images/article_image/rabbitmq_mirror_3.png" alt="Alt"><br><em><strong>到此，镜像集群部署工作完成。</strong></em></p>
+<h1 id="RabbitMQ监控"><a href="#RabbitMQ监控" class="headerlink" title="RabbitMQ监控"></a>RabbitMQ监控</h1><p>使用两种流行的工具介绍RabbitMQ监视： Prometheus，一个监视工具包；和Grafana，一个度量可视化系统。<br>从3.8.0版开始，RabbitMQ附带了内置的Prometheus＆Grafana支持。<br>Rabbitmq_prometheus插件随附了对Prometheus度量标准收集器的支持。该插件以Prometheus文本格式在专用TCP端口上公开所有RabbitMQ指标。<br>这些度量标准提供了对RabbitMQ节点状态和运行时的深入了解。他们使有关RabbitMQ的行为，使用它的应用程序以及各种基础结构元素的推理变得更加明智。</p>
+<h2 id="启用rabbitmq-prometheus"><a href="#启用rabbitmq-prometheus" class="headerlink" title="启用rabbitmq_prometheus"></a>启用rabbitmq_prometheus</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">在所有节点上启用rabbitmq_prometheus 插件</span><br><span class="line">rabbitmq-plugins enable rabbitmq_prometheus</span><br></pre></td></tr></table></figure>
+
+<p>获取指标，如下所示有监控指标出现，即表示监控插件开启</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">curl -s localhost:15692/metrics | head -n 3</span><br><span class="line"># TYPE erlang_mnesia_held_locks gauge</span><br><span class="line"># HELP erlang_mnesia_held_locks Number of held locks.</span><br><span class="line">erlang_mnesia_held_locks 0</span><br></pre></td></tr></table></figure>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          <div class="reward-container">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button>
+    赞赏
+  </button>
+  <div class="post-reward">
+      <div>
+        <img src="/images/wechatpay.png" alt="Lupin Lao 微信">
+        <span>微信</span>
+      </div>
+
+  </div>
+</div>
+
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Lupin Lao
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/" title="Dokcer 部署RabbitMQ集群-镜像模式（实战）">http://blog.kocdyun.top/2021/03/01/datebases/rabbitmq-mirror/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/Docker/" rel="tag"># Docker</a>
+              <a href="/tags/rabbitmq/" rel="tag"># rabbitmq</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/02/28/kubernetes/etcd_backup/" rel="prev" title="etcd数据备份与恢复">
+                  <i class="fa fa-angle-left"></i> etcd数据备份与恢复
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Lupin Lao</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">17k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">32 分钟</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>
