@@ -28,7 +28,7 @@
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="http://blog.kocdyun.top/images/article_image/deepseek_Deployment_1.png">
 <meta property="article:published_time" content="2025-03-17T07:00:00.000Z">
-<meta property="article:modified_time" content="2025-03-17T05:00:36.684Z">
+<meta property="article:modified_time" content="2025-03-18T05:56:09.483Z">
 <meta property="article:author" content="Lupin Lao">
 <meta property="article:tag" content="Ollama">
 <meta property="article:tag" content="Deepseek">
@@ -219,9 +219,15 @@
         <i class="far fa-calendar"></i>
       </span>
       <span class="post-meta-item-text">发表于</span>
-      
 
-      <time title="创建时间：2025-03-17 15:00:00 / 修改时间：13:00:36" itemprop="dateCreated datePublished" datetime="2025-03-17T15:00:00+08:00">2025-03-17</time>
+      <time title="创建时间：2025-03-17 15:00:00" itemprop="dateCreated datePublished" datetime="2025-03-17T15:00:00+08:00">2025-03-17</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-03-18 13:56:09" itemprop="dateModified" datetime="2025-03-18T13:56:09+08:00">2025-03-18</time>
     </span>
     <span class="post-meta-item">
       <span class="post-meta-item-icon">
@@ -275,15 +281,15 @@
 </code></pre>
 <p><em><strong>命令详解：</strong></em><br>-d 表示以守护进程方式运行容器,后台运行。<br>-p 8880:11434 将容器的11434端口映射到宿主机的8880端口，11434为Ollama默认提供API访问的端口。<br>–gpus device&#x3D;0 表示该容器使用GPU 0号卡，通过前面执行nvidia-smi命令时知道的。<br>–name DeepSeek-R1-1 给容器起一个名字 最后是容器镜像的名称。</p>
 <p>执行创建容器命令之后，可以通过docker ps命令查询到容器的信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@aitest:~# docker ps         </span><br><span class="line">CONTAINER ID   IMAGE                                 COMMAND               CREATED          STATUS         PORTS                                           NAMES         </span><br><span class="line">7049f65fd9d3   docker.1ms.run/ollama/ollama:0.5.11   &quot;/bin/ollama serve&quot;   10 seconds ago   Up 9 seconds   0.0.0.0:8880-&gt;11434/tcp, [::]:8880-&gt;11434/tcp   DeepSeek-R1-1</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@lptest001:~# docker ps         </span><br><span class="line">CONTAINER ID   IMAGE                                 COMMAND               CREATED          STATUS         PORTS                                           NAMES         </span><br><span class="line">7049f65fd9d3   docker.1ms.run/ollama/ollama:0.5.11   &quot;/bin/ollama serve&quot;   10 seconds ago   Up 9 seconds   0.0.0.0:8880-&gt;11434/tcp, [::]:8880-&gt;11434/tcp   DeepSeek-R1-1</span><br></pre></td></tr></table></figure>
 
 <p>创建ollama容器，经常会报如下的错误：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@aitest:~# docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11</span><br><span class="line">7049f65fd9d3a539aa7660eb664caa585dba188720f0975701b73d87263b6cdf                                                                                                  </span><br><span class="line">docker: Error response from daemon: could not select device driver &quot;&quot; with capabilities: [[gpu]]. </span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">root@lptest001:~# docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11</span><br><span class="line">7049f65fd9d3a539aa7660eb664caa585dba188720f0975701b73d87263b6cdf                                                                                                  </span><br><span class="line">docker: Error response from daemon: could not select device driver &quot;&quot; with capabilities: [[gpu]]. </span><br></pre></td></tr></table></figure>
 <p>这是因为服务器的 NVIDIA Container Toolkit 没有装，需要执行如下命令安装一下：</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">distribution=$(. /etc/os-release;echo $ID$VERSION_ID)</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="line">apt-get update</span><br><span class="line">apt-get install -y nvidia-docker2</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
 
 <p>安装完成后，执行 docker info 命令，确保 docker 守护进程已经正确配置 GPU 支持。命令和输出如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@aitest:~# docker info | grep -i nvidia                                                                                                                              </span><br><span class="line"> Runtimes: io.containerd.runc.v2 nvidia runc</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">root@lptest001:~# docker info | grep -i nvidia                                                                                                                              </span><br><span class="line"> Runtimes: io.containerd.runc.v2 nvidia runc</span><br></pre></td></tr></table></figure>
 
 <p>此时再重新 docker run，就可以将 Ollama 容器拉起了。</p>
 <h2 id="部署与测试-DeepSeek-R1"><a href="#部署与测试-DeepSeek-R1" class="headerlink" title="部署与测试 DeepSeek-R1"></a>部署与测试 DeepSeek-R1</h2><p>Ollama 官方提供了一个可视化的模型仓库，便于我们了解 Ollama 已经支持了哪些模型，以及下载模型。仓库的地址是：<a target="_blank" rel="noopener" href="https://ollama.com/library">https://ollama.com/library</a><br>点开链接后，找到 DeepSeek-R1 模型，共分为 1.5b 到 671b 多个版本。<br><img src="/images/article_image/deepseek_Deployment_2.png" alt="Alt"></p>
@@ -301,7 +307,7 @@
 <p>启动容器，将模型挂载进去，需要注意 Ollama 在 ubuntu 服务器上的默认是模型文件存放目录 &#x2F;usr&#x2F;share&#x2F;ollama&#x2F;.ollama&#x2F;models，但是在容器中的目录是 &#x2F;root&#x2F;.ollama&#x2F;models，挂载时要写成服务器目录: 容器目录的格式，注意不要写反了。</p>
 <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -dp 8880:11434 --runtime=nvidia --gpus device=0 --name DeepSeek-R1-1 -v /usr/share/ollama/.ollama/models:/root/.ollama/models docker.1ms.run/ollama/ollama:0.5.11</span><br></pre></td></tr></table></figure>
 <p>最后查看容器中的模型是否已经运行：</p>
-<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@aitest:~# docker ps CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 9a44f04e78f7 docker.1ms.run/ollama/ollama:0.5.11 &quot;/bin/ollama serve&quot; 6 minutes ago Up 6 minutes 0.0.0.0:8880-&gt;11434/tcp,</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">root@lptest001:~# docker ps CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 9a44f04e78f7 docker.1ms.run/ollama/ollama:0.5.11 &quot;/bin/ollama serve&quot; 6 minutes ago Up 6 minutes 0.0.0.0:8880-&gt;11434/tcp,</span><br></pre></td></tr></table></figure>
     </div>
 
     
