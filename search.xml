@@ -42,85 +42,6 @@
       </tags>
   </entry>
   <entry>
-    <title>Dokcer 部署RabbitMQ集群-镜像模式（实战）</title>
-    <url>/2021/03/01/datebases/rabbitmq-mirror/</url>
-    <content><![CDATA[<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。</p>
-<span id="more"></span>
-
-<hr>
-<p>RabbitMQ部署模式大概分为以下三种:</p>
-<ol>
-<li>单一模式。</li>
-<li>普通模式(默认的集群模式)。</li>
-<li>镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbitMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。</li>
-</ol>
-<h1 id="RabbitMQ模式详解"><a href="#RabbitMQ模式详解" class="headerlink" title="RabbitMQ模式详解"></a>RabbitMQ模式详解</h1><p>abbitmq普通集群模式，是将交换机、绑定、队列的元数据复制到集群里的任何一个节点，但队列内容只存在于特定的节点中，客户端通过连接集群中任意一个节点，即可以生产和消费集群中的任何队列内容（因为每个节点都有集群中所有队列的元数据信息，如果队列内容不在本节点，则本节点会从远程节点获取内容，然后提供给消费者消费）。<br>从该模式不难看出，普通集群可以让不同的繁忙队列从属于不同的节点，这样可以减轻单节点的压力，提升吞吐量，但是普通集群不能保证队列的高可用性，因为一旦队列所在节点宕机直接导致该队列无法使用，只能等待重启，所以要想在队列节点宕机或故障也能正常使用，就要复制队列内容到集群里的每个节点，需要创建镜像队列。<br>rabbitmq镜像集群依赖于普通集群，所以需要先搭建rabbitmq普通集群。</p>
-<h1 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h1><p>要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用，本次实践部署rabbitmq采用的版本（rabbitmq:3.8.7-management）。</p>
-<h2 id="主机列表"><a href="#主机列表" class="headerlink" title="主机列表"></a>主机列表</h2><table>
-<thead>
-<tr>
-<th>主机</th>
-<th>节点模式</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>192.168.1.32</td>
-<td>磁盘节点</td>
-</tr>
-<tr>
-<td>192.168.1.33</td>
-<td>内存节点</td>
-</tr>
-<tr>
-<td>192.168.1.35</td>
-<td>内存节点</td>
-</tr>
-</tbody></table>
-<h1 id="部署RabbitMQ"><a href="#部署RabbitMQ" class="headerlink" title="部署RabbitMQ"></a>部署RabbitMQ</h1><h2 id="创建持久数据目录"><a href="#创建持久数据目录" class="headerlink" title="创建持久数据目录"></a>创建持久数据目录</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir /data/rabbitmq -p   //三台主机均执行</span><br></pre></td></tr></table></figure>
-<h2 id="host配置-rabbitmq集群需要解析主机名"><a href="#host配置-rabbitmq集群需要解析主机名" class="headerlink" title="host配置(rabbitmq集群需要解析主机名)"></a>host配置(rabbitmq集群需要解析主机名)</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /data/rabbitmq</span><br><span class="line">vim hosts</span><br><span class="line"># hosts 内容</span><br><span class="line">192.168.1.32 rabbit1</span><br><span class="line">192.168.1.33 rabbit2</span><br><span class="line">192.168.1.35 rabbit3</span><br></pre></td></tr></table></figure>
-
-<h2 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit1 \</span><br><span class="line">  --name rabbit1  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit2 \</span><br><span class="line">  --name rabbit2  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit3 \</span><br><span class="line">  --name rabbit3  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line"></span><br><span class="line">注意：hostname 不要重复</span><br></pre></td></tr></table></figure>
-
-<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-d</span><br><span class="line">#容器后台运行</span><br><span class="line">--restart=always</span><br><span class="line"># 容器重启策略, always 在容器退出时总是重启容器</span><br><span class="line">--net host</span><br><span class="line">#容器和宿主机共用网络(注意端口冲突)</span><br><span class="line">--hostname rabbit1</span><br><span class="line">#容器的主机名为 rabbit1，容器内部的hostname</span><br><span class="line">--name rabbit1</span><br><span class="line">#容器名为rabbit1，在宿主机上运行“docker ps”命令时显示的名称</span><br><span class="line">-v /data/rabbitmq:/var/lib/rabbitmq</span><br><span class="line">#将宿主机目录/data/rabbitmq挂载到容器的/var/lib/rabbitmq目录</span><br><span class="line">-v /data/rabbitmq/hosts:/etc/hosts</span><br><span class="line">#将宿主机目录/data/rabbitmq/hosts文件挂载到容器的/etc/hosts文件</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=user01</span><br><span class="line">#设置rabbitmq默认用户为user01</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=password01</span><br><span class="line">#设置rabbitmq默认密码为password01</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie&#x27;</span><br><span class="line">#设置rabbitmq的cookie为“secret cookie”，可以自定义为其他文本，三个容器保持一致即可。</span><br><span class="line">rabbitmq:3.8.7-management</span><br><span class="line">#使用rabbitmq:3.8.7-management这个镜像</span><br></pre></td></tr></table></figure>
-
-<p><em><strong>三台机器都执行上面的命令,hostname和容器name需要修改</strong></em></p>
-<h2 id="将节点2-3加入集群"><a href="#将节点2-3加入集群" class="headerlink" title="将节点2,3加入集群"></a>将节点2,3加入集群</h2><p>在rabbit2机器进入容器的命令行</p>
-<pre><code>docker exec -it rabbit2 /bin/bash
-加入集群
-rabbitmqctl stop_app
-rabbitmqctl join_cluster rabbit@rabbit1
-rabbitmqctl join_cluster rabbit@rabbit1 --ram  //表示该节点为内存节点，默认为磁盘节点。
-rabbitmqctl start_app
-rabbit3执行相同的命令
-
-查询集群状态
-rabbitmqctl cluster_status
-</code></pre>
-<h3 id="特别说明："><a href="#特别说明：" class="headerlink" title="特别说明："></a>特别说明：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在上述部署已完成的情况下更改节点模式(硬盘模式-disc、内存模式-ram)</span><br><span class="line"># 更改节点: rabbit@rabbit2为硬盘模式,操作如下：</span><br><span class="line"># 进入任意容器内</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 stop_app</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 change_cluster_node_type disc</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 start_app</span><br></pre></td></tr></table></figure>
-
-<h2 id="配置镜像集群策略"><a href="#配置镜像集群策略" class="headerlink" title="配置镜像集群策略"></a>配置镜像集群策略</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">新添加用户</span><br><span class="line">rabbitmqctl list_users     //查看用户列表</span><br><span class="line">rabbitmqctl add_user admin 123456   //新增用户、密码</span><br><span class="line">rabbitmqctl set_user_tags admin administrator  // 设置admin用户标记，administrator表示最高权限</span><br><span class="line">rabbitmqctl set_permissions -p &quot;/&quot; admin &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;   //设置权限</span><br></pre></td></tr></table></figure>
-
-<h3 id="开启镜像集群模式"><a href="#开启镜像集群模式" class="headerlink" title="开启镜像集群模式"></a>开启镜像集群模式</h3><p>搭建镜像集群是在web控制台完成的，主要操作就是在Admin界面添加一个Policy<br>添加策略：登录rabbitmq管理页面 ——&gt; Admin ——&gt; Policies ——&gt; Add &#x2F; update a policy，填写对应的镜像策略。<br><img src="/images/article_image/rabbitmq_mirror_1.png" alt="Alt"><br><img src="/images/article_image/rabbitmq_mirror_2.png" alt="Alt"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Policy参数含义</span><br><span class="line">pattern: 队列名字的通配符 或者 ^ 匹配符，只有一个^代表匹配所有</span><br><span class="line">ha-mode：镜像队列提供了三种模式：</span><br><span class="line">        all：全部的节点队列都做镜像；</span><br><span class="line">        exactly：指定镜像队列的节点最高镜像数量；</span><br><span class="line">        nodes：只为指定具体节点配置镜像队列；</span><br><span class="line">ha-sync-mode ：节点之前的同步模式。有自动和手动两种，默认是手动，这里设置为自动。</span><br></pre></td></tr></table></figure>
-
-<p>设置完成并添加了这个策略后，新建的和已存在的队列默认会支持此策略。</p>
-<p>出现如下图所示，表示配置完成<br><img src="/images/article_image/rabbitmq_mirror_3.png" alt="Alt"><br><em><strong>到此，镜像集群部署工作完成。</strong></em></p>
-<h1 id="RabbitMQ监控"><a href="#RabbitMQ监控" class="headerlink" title="RabbitMQ监控"></a>RabbitMQ监控</h1><p>使用两种流行的工具介绍RabbitMQ监视： Prometheus，一个监视工具包；和Grafana，一个度量可视化系统。<br>从3.8.0版开始，RabbitMQ附带了内置的Prometheus＆Grafana支持。<br>Rabbitmq_prometheus插件随附了对Prometheus度量标准收集器的支持。该插件以Prometheus文本格式在专用TCP端口上公开所有RabbitMQ指标。<br>这些度量标准提供了对RabbitMQ节点状态和运行时的深入了解。他们使有关RabbitMQ的行为，使用它的应用程序以及各种基础结构元素的推理变得更加明智。</p>
-<h2 id="启用rabbitmq-prometheus"><a href="#启用rabbitmq-prometheus" class="headerlink" title="启用rabbitmq_prometheus"></a>启用rabbitmq_prometheus</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">在所有节点上启用rabbitmq_prometheus 插件</span><br><span class="line">rabbitmq-plugins enable rabbitmq_prometheus</span><br></pre></td></tr></table></figure>
-
-<p>获取指标，如下所示有监控指标出现，即表示监控插件开启</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -s localhost:15692/metrics | head -n 3</span><br><span class="line"># TYPE erlang_mnesia_held_locks gauge</span><br><span class="line"># HELP erlang_mnesia_held_locks Number of held locks.</span><br><span class="line">erlang_mnesia_held_locks 0</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>数据库</category>
-        <category>RabbitMQ</category>
-      </categories>
-      <tags>
-        <tag>rabbitmq</tag>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>本地部署Ollama+DeepSeek-R1</title>
     <url>/2025/03/17/deepseek/ollama_deepseek_deployment/</url>
     <content><![CDATA[<h1 id="什么是-Ollama-？"><a href="#什么是-Ollama-？" class="headerlink" title="什么是 Ollama ？"></a>什么是 Ollama ？</h1><p>Ollama是一个专为在本地机器上便捷部署和运行大型语言模型（LLM）而设计的开源框架，它可以用简单的命令行快捷部署多种大模型，例如 DeepSeek、Qwen、Llama3 等等模型。</p>
@@ -174,6 +95,32 @@ rabbitmqctl cluster_status
       <tags>
         <tag>Ollama</tag>
         <tag>Deepseek</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2021/02/26/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -277,32 +224,6 @@ rabbitmqctl cluster_status
       </tags>
   </entry>
   <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2021/02/26/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>etcd数据备份与恢复</title>
     <url>/2021/02/28/kubernetes/etcd_backup/</url>
     <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
@@ -334,79 +255,82 @@ rabbitmqctl cluster_status
       </tags>
   </entry>
   <entry>
-    <title>Log-pilot日志采集收集java堆栈异常日志</title>
-    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
-    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
-<span id="more"></span>
-<hr>
-<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
-<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
-<pre><code> 参数详情：
-</code></pre>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
-<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>日志采集</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux 命令（2）—— xargs 命令</title>
-    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
-    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
+    <title>Dokcer 部署RabbitMQ集群-镜像模式（实战）</title>
+    <url>/2021/03/01/datebases/rabbitmq-mirror/</url>
+    <content><![CDATA[<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。</p>
 <span id="more"></span>
 
 <hr>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
+<p>RabbitMQ部署模式大概分为以下三种:</p>
+<ol>
+<li>单一模式。</li>
+<li>普通模式(默认的集群模式)。</li>
+<li>镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbitMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。</li>
+</ol>
+<h1 id="RabbitMQ模式详解"><a href="#RabbitMQ模式详解" class="headerlink" title="RabbitMQ模式详解"></a>RabbitMQ模式详解</h1><p>abbitmq普通集群模式，是将交换机、绑定、队列的元数据复制到集群里的任何一个节点，但队列内容只存在于特定的节点中，客户端通过连接集群中任意一个节点，即可以生产和消费集群中的任何队列内容（因为每个节点都有集群中所有队列的元数据信息，如果队列内容不在本节点，则本节点会从远程节点获取内容，然后提供给消费者消费）。<br>从该模式不难看出，普通集群可以让不同的繁忙队列从属于不同的节点，这样可以减轻单节点的压力，提升吞吐量，但是普通集群不能保证队列的高可用性，因为一旦队列所在节点宕机直接导致该队列无法使用，只能等待重启，所以要想在队列节点宕机或故障也能正常使用，就要复制队列内容到集群里的每个节点，需要创建镜像队列。<br>rabbitmq镜像集群依赖于普通集群，所以需要先搭建rabbitmq普通集群。</p>
+<h1 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h1><p>要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用，本次实践部署rabbitmq采用的版本（rabbitmq:3.8.7-management）。</p>
+<h2 id="主机列表"><a href="#主机列表" class="headerlink" title="主机列表"></a>主机列表</h2><table>
+<thead>
+<tr>
+<th>主机</th>
+<th>节点模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.1.32</td>
+<td>磁盘节点</td>
+</tr>
+<tr>
+<td>192.168.1.33</td>
+<td>内存节点</td>
+</tr>
+<tr>
+<td>192.168.1.35</td>
+<td>内存节点</td>
+</tr>
+</tbody></table>
+<h1 id="部署RabbitMQ"><a href="#部署RabbitMQ" class="headerlink" title="部署RabbitMQ"></a>部署RabbitMQ</h1><h2 id="创建持久数据目录"><a href="#创建持久数据目录" class="headerlink" title="创建持久数据目录"></a>创建持久数据目录</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir /data/rabbitmq -p   //三台主机均执行</span><br></pre></td></tr></table></figure>
+<h2 id="host配置-rabbitmq集群需要解析主机名"><a href="#host配置-rabbitmq集群需要解析主机名" class="headerlink" title="host配置(rabbitmq集群需要解析主机名)"></a>host配置(rabbitmq集群需要解析主机名)</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /data/rabbitmq</span><br><span class="line">vim hosts</span><br><span class="line"># hosts 内容</span><br><span class="line">192.168.1.32 rabbit1</span><br><span class="line">192.168.1.33 rabbit2</span><br><span class="line">192.168.1.35 rabbit3</span><br></pre></td></tr></table></figure>
 
+<h2 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit1 \</span><br><span class="line">  --name rabbit1  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit2 \</span><br><span class="line">  --name rabbit2  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit3 \</span><br><span class="line">  --name rabbit3  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line"></span><br><span class="line">注意：hostname 不要重复</span><br></pre></td></tr></table></figure>
 
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-d</span><br><span class="line">#容器后台运行</span><br><span class="line">--restart=always</span><br><span class="line"># 容器重启策略, always 在容器退出时总是重启容器</span><br><span class="line">--net host</span><br><span class="line">#容器和宿主机共用网络(注意端口冲突)</span><br><span class="line">--hostname rabbit1</span><br><span class="line">#容器的主机名为 rabbit1，容器内部的hostname</span><br><span class="line">--name rabbit1</span><br><span class="line">#容器名为rabbit1，在宿主机上运行“docker ps”命令时显示的名称</span><br><span class="line">-v /data/rabbitmq:/var/lib/rabbitmq</span><br><span class="line">#将宿主机目录/data/rabbitmq挂载到容器的/var/lib/rabbitmq目录</span><br><span class="line">-v /data/rabbitmq/hosts:/etc/hosts</span><br><span class="line">#将宿主机目录/data/rabbitmq/hosts文件挂载到容器的/etc/hosts文件</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=user01</span><br><span class="line">#设置rabbitmq默认用户为user01</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=password01</span><br><span class="line">#设置rabbitmq默认密码为password01</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie&#x27;</span><br><span class="line">#设置rabbitmq的cookie为“secret cookie”，可以自定义为其他文本，三个容器保持一致即可。</span><br><span class="line">rabbitmq:3.8.7-management</span><br><span class="line">#使用rabbitmq:3.8.7-management这个镜像</span><br></pre></td></tr></table></figure>
 
-<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
+<p><em><strong>三台机器都执行上面的命令,hostname和容器name需要修改</strong></em></p>
+<h2 id="将节点2-3加入集群"><a href="#将节点2-3加入集群" class="headerlink" title="将节点2,3加入集群"></a>将节点2,3加入集群</h2><p>在rabbit2机器进入容器的命令行</p>
+<pre><code>docker exec -it rabbit2 /bin/bash
+加入集群
+rabbitmqctl stop_app
+rabbitmqctl join_cluster rabbit@rabbit1
+rabbitmqctl join_cluster rabbit@rabbit1 --ram  //表示该节点为内存节点，默认为磁盘节点。
+rabbitmqctl start_app
+rabbit3执行相同的命令
 
-<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
-
-<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
-
-<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
-<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
-echo `0123`4 56789 
-`0123`4 56789
+查询集群状态
+rabbitmqctl cluster_status
 </code></pre>
-<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
-<pre><code>echo `01234` 56789
--bash: 01234: command not found
-56789
-</code></pre>
-<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+<h3 id="特别说明："><a href="#特别说明：" class="headerlink" title="特别说明："></a>特别说明：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在上述部署已完成的情况下更改节点模式(硬盘模式-disc、内存模式-ram)</span><br><span class="line"># 更改节点: rabbit@rabbit2为硬盘模式,操作如下：</span><br><span class="line"># 进入任意容器内</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 stop_app</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 change_cluster_node_type disc</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 start_app</span><br></pre></td></tr></table></figure>
 
-<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
+<h2 id="配置镜像集群策略"><a href="#配置镜像集群策略" class="headerlink" title="配置镜像集群策略"></a>配置镜像集群策略</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">新添加用户</span><br><span class="line">rabbitmqctl list_users     //查看用户列表</span><br><span class="line">rabbitmqctl add_user admin 123456   //新增用户、密码</span><br><span class="line">rabbitmqctl set_user_tags admin administrator  // 设置admin用户标记，administrator表示最高权限</span><br><span class="line">rabbitmqctl set_permissions -p &quot;/&quot; admin &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;   //设置权限</span><br></pre></td></tr></table></figure>
 
-<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
+<h3 id="开启镜像集群模式"><a href="#开启镜像集群模式" class="headerlink" title="开启镜像集群模式"></a>开启镜像集群模式</h3><p>搭建镜像集群是在web控制台完成的，主要操作就是在Admin界面添加一个Policy<br>添加策略：登录rabbitmq管理页面 ——&gt; Admin ——&gt; Policies ——&gt; Add &#x2F; update a policy，填写对应的镜像策略。<br><img src="/images/article_image/rabbitmq_mirror_1.png" alt="Alt"><br><img src="/images/article_image/rabbitmq_mirror_2.png" alt="Alt"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Policy参数含义</span><br><span class="line">pattern: 队列名字的通配符 或者 ^ 匹配符，只有一个^代表匹配所有</span><br><span class="line">ha-mode：镜像队列提供了三种模式：</span><br><span class="line">        all：全部的节点队列都做镜像；</span><br><span class="line">        exactly：指定镜像队列的节点最高镜像数量；</span><br><span class="line">        nodes：只为指定具体节点配置镜像队列；</span><br><span class="line">ha-sync-mode ：节点之前的同步模式。有自动和手动两种，默认是手动，这里设置为自动。</span><br></pre></td></tr></table></figure>
 
-<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+<p>设置完成并添加了这个策略后，新建的和已存在的队列默认会支持此策略。</p>
+<p>出现如下图所示，表示配置完成<br><img src="/images/article_image/rabbitmq_mirror_3.png" alt="Alt"><br><em><strong>到此，镜像集群部署工作完成。</strong></em></p>
+<h1 id="RabbitMQ监控"><a href="#RabbitMQ监控" class="headerlink" title="RabbitMQ监控"></a>RabbitMQ监控</h1><p>使用两种流行的工具介绍RabbitMQ监视： Prometheus，一个监视工具包；和Grafana，一个度量可视化系统。<br>从3.8.0版开始，RabbitMQ附带了内置的Prometheus＆Grafana支持。<br>Rabbitmq_prometheus插件随附了对Prometheus度量标准收集器的支持。该插件以Prometheus文本格式在专用TCP端口上公开所有RabbitMQ指标。<br>这些度量标准提供了对RabbitMQ节点状态和运行时的深入了解。他们使有关RabbitMQ的行为，使用它的应用程序以及各种基础结构元素的推理变得更加明智。</p>
+<h2 id="启用rabbitmq-prometheus"><a href="#启用rabbitmq-prometheus" class="headerlink" title="启用rabbitmq_prometheus"></a>启用rabbitmq_prometheus</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">在所有节点上启用rabbitmq_prometheus 插件</span><br><span class="line">rabbitmq-plugins enable rabbitmq_prometheus</span><br></pre></td></tr></table></figure>
 
-<p>（6）将文件内容以空格分隔合并为一行输出。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
-
-<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
+<p>获取指标，如下所示有监控指标出现，即表示监控插件开启</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -s localhost:15692/metrics | head -n 3</span><br><span class="line"># TYPE erlang_mnesia_held_locks gauge</span><br><span class="line"># HELP erlang_mnesia_held_locks Number of held locks.</span><br><span class="line">erlang_mnesia_held_locks 0</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>Linux</category>
-        <category>常用命令</category>
+        <category>数据库</category>
+        <category>RabbitMQ</category>
       </categories>
       <tags>
-        <tag>linux</tag>
+        <tag>Docker</tag>
+        <tag>rabbitmq</tag>
       </tags>
   </entry>
   <entry>
@@ -485,6 +409,82 @@ echo `0123`4 56789
 <p>由於 $ 代表的是最后一行，而 a 的动作是新增，因此该文件最后新增”# This is a test”。</p>
 <p>sed 的-i选项可以直接修改文件内容，这功能非常有帮助！举例来说，如果你有一个 100 万行的文件，你要在第 100 行加某些文字，此时使用 vim 可能会疯掉！因为文件太大了！那怎办？就利用 sed 啊！透过 sed 直接修改&#x2F;取代的功能，你甚至不需要使用 vim 去修订！</p>
 <h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] Linux sed命令详解<br>[2] 鸟哥.鸟哥的私房菜基础学习篇第三版[M].北京：人民邮电出版社，2010：357-360</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>常用命令</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Log-pilot日志采集收集java堆栈异常日志</title>
+    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
+    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
+<span id="more"></span>
+<hr>
+<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
+<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
+<pre><code> 参数详情：
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
+<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>日志采集</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux 命令（2）—— xargs 命令</title>
+    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
+    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
+<span id="more"></span>
+
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
+
+
+
+<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
+
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
+
+<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
+
+<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
+<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
+echo `0123`4 56789 
+`0123`4 56789
+</code></pre>
+<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
+<pre><code>echo `01234` 56789
+-bash: 01234: command not found
+56789
+</code></pre>
+<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
+
+<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
+
+<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（6）将文件内容以空格分隔合并为一行输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
+
+<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
 ]]></content>
       <categories>
         <category>Linux</category>
