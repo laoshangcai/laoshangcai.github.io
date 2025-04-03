@@ -101,32 +101,6 @@
       </tags>
   </entry>
   <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2021/02/26/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Windows11系统部署Dify-AI应用开发</title>
     <url>/2025/03/26/AIagent/dify_deployment/</url>
     <content><![CDATA[<h1 id="什么是-Dify-？"><a href="#什么是-Dify-？" class="headerlink" title="什么是 Dify ？"></a>什么是 Dify ？</h1><p>Dify 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service）和 LLMOps 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。</p>
@@ -165,37 +139,6 @@
       </categories>
       <tags>
         <tag>Dify</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>etcd数据备份与恢复</title>
-    <url>/2021/02/28/kubernetes/etcd_backup/</url>
-    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
-
-<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
-
-<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
-
-<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
-
-<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>kubernetes</category>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>kubernetes</tag>
       </tags>
   </entry>
   <entry>
@@ -351,6 +294,63 @@ rabbitmqctl cluster_status
       </categories>
       <tags>
         <tag>日志采集</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2021/02/26/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>etcd数据备份与恢复</title>
+    <url>/2021/02/28/kubernetes/etcd_backup/</url>
+    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
+
+<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
+
+<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
+
+<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
+
+<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>kubernetes</category>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>kubernetes</tag>
       </tags>
   </entry>
   <entry>
