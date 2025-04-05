@@ -1,103 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>Windows 11部署Dify-AI应用开发</title>
-    <url>/2025/03/26/AIagent/dify_deployment/</url>
-    <content><![CDATA[<h1 id="什么是-Dify-？"><a href="#什么是-Dify-？" class="headerlink" title="什么是 Dify ？"></a>什么是 Dify ？</h1><p>Dify 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service）和 LLMOps 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。</p>
-<span id="more"></span>
-<hr>
-<p>由于 Dify 内置了构建 LLM 应用所需的关键技术栈，包括对数百个模型的支持、直观的 Prompt 编排界面、高质量的 RAG 引擎、稳健的 Agent 框架、灵活的流程编排，并同时提供了一套易用的界面和 API。这为开发者节省了许多重复造轮子的时间，使其可以专注在创新和业务需求上。</p>
-<p>下面我们开始本地部署Dify</p>
-<p><strong>前提条件（官方建议配置）</strong><br>安装 Dify 之前, 请确保你的机器已满足最低安装要求：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CPU &gt;= 2 Core</span><br><span class="line">RAM &gt;= 4 GiB</span><br></pre></td></tr></table></figure>
-
-<h1 id="Windows11-安装Docker和WSL"><a href="#Windows11-安装Docker和WSL" class="headerlink" title="Windows11 安装Docker和WSL"></a>Windows11 安装Docker和WSL</h1><h2 id="安装wsl"><a href="#安装wsl" class="headerlink" title="安装wsl"></a>安装wsl</h2><p>进入cmd或者powershell执行wsl –update，一般下载比较慢，可以从github (<a href="https://github.com/microsoft/WSL/releases%EF%BC%89%E4%B8%8B%E8%BD%BD%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%8C%E7%84%B6%E5%90%8E%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF">https://github.com/microsoft/WSL/releases）下载，如下图所示，然后安装即可</a><br><img src="/images/article_image/dify_Deployment_2.png" alt="Alt"></p>
-<h2 id="安装Docker-Desktop"><a href="#安装Docker-Desktop" class="headerlink" title="安装Docker Desktop"></a>安装Docker Desktop</h2><p>进入Docker的官方网站<a href="https://www.docker.com,点击下载amd64版本,如图1所示.然后安装即可./">https://www.docker.com，点击下载AMD64版本，如图1所示。然后安装即可。</a><br><img src="/images/article_image/dify_Deployment_3.png" alt="Alt"></p>
-<h1 id="安装Dify"><a href="#安装Dify" class="headerlink" title="安装Dify"></a>安装Dify</h1><h2 id="克隆-Dify-代码仓库"><a href="#克隆-Dify-代码仓库" class="headerlink" title="克隆 Dify 代码仓库"></a>克隆 Dify 代码仓库</h2><p>克隆 Dify 源代码至本地环境。我下载是最新的1.1.3<br><code>git clone https://github.com/langgenius/dify.git --branch 1.1.3 </code></p>
-<p><em><strong>如果本地没有安装git，可以直接到github下载压缩包到本地再解压</strong></em></p>
-<h2 id="启动-Dify"><a href="#启动-Dify" class="headerlink" title="启动 Dify"></a>启动 Dify</h2><h3 id="进入-Dify-源代码的-Docker-目录"><a href="#进入-Dify-源代码的-Docker-目录" class="headerlink" title="进入 Dify 源代码的 Docker 目录"></a>进入 Dify 源代码的 Docker 目录</h3><p><strong>你自己解压的路径</strong><br><code>cd D:\Software\dify-1.1.3\docker</code></p>
-<h3 id="复制环境配置文件"><a href="#复制环境配置文件" class="headerlink" title="复制环境配置文件"></a>复制环境配置文件</h3><p><code>cp .env.example .env</code></p>
-<p><em><strong>（填坑）注意</strong></em>：windows环境部署，需要更改.env文件的换行格式，可通过vscode打开，否则部署后，在访问localhost\install页面时会出现了internal server error报错，并且无法出现注册页面。.env文件更改（LF改为CRLF），保存文件即可，如下图所示：<br><img src="/images/article_image/dify_Deployment_4.png" alt="Alt"></p>
-<h3 id="部署Dify容器"><a href="#部署Dify容器" class="headerlink" title="部署Dify容器"></a>部署Dify容器</h3><ul>
-<li>打开docker desktop界面，添加国内镜像加速（推荐，否则下载会失败），添加后重启docker，如下图所示：<br><img src="/images/article_image/dify_Deployment_5.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_6.png" alt="Alt"></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&quot;registry-mirror&quot;: [</span><br><span class="line">    &quot;https://registry.cn-shenzhen.aliyuncs.com&quot;</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>根据你系统上的 Docker Compose 版本，选择合适的命令来启动容器。你可以通过 $ docker compose version 命令检查版本，详细说明请参考 Docker 官方文档：<br>我安装的版本是 Docker Compose V2，所以使用以下命令：</li>
-</ul>
-<p><code>docker compose up -d</code><br>运行命令后，你应该会看到类似以下的输出，显示所有容器的状态：<br><img src="/images/article_image/dify_Deployment_7.png" alt="Alt"></p>
-<p>最后检查是否所有容器都正常运行：<br><code>docker compose ps</code><br><img src="/images/article_image/dify_Deployment_8.png" alt="Alt"></p>
-<h3 id="访问-Dify"><a href="#访问-Dify" class="headerlink" title="访问 Dify"></a>访问 Dify</h3><p>你可以先前往管理员初始化页面，设置管理员账户：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 本地环境</span><br><span class="line">http://localhost/install</span><br><span class="line"></span><br><span class="line"># 服务器环境</span><br><span class="line">http://your_server_ip/install</span><br></pre></td></tr></table></figure>
-
-<h3 id="docker-compose-停止或者启动dify项目"><a href="#docker-compose-停止或者启动dify项目" class="headerlink" title="docker compose 停止或者启动dify项目"></a>docker compose 停止或者启动dify项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker compose stop</span><br><span class="line">docker compose start</span><br></pre></td></tr></table></figure>
-<p><img src="/images/article_image/dify_Deployment_9.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_10.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Dify</category>
-      </categories>
-      <tags>
-        <tag>Dify</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>本地部署Ollama+DeepSeek-R1</title>
-    <url>/2025/03/17/deepseek/ollama_deepseek_deployment/</url>
-    <content><![CDATA[<h1 id="什么是-Ollama-？"><a href="#什么是-Ollama-？" class="headerlink" title="什么是 Ollama ？"></a>什么是 Ollama ？</h1><p>Ollama是一个专为在本地机器上便捷部署和运行大型语言模型（LLM）而设计的开源框架，它可以用简单的命令行快捷部署多种大模型，例如 DeepSeek、Qwen、Llama3 等等模型。</p>
-<span id="more"></span>
-<hr>
-<p>Ollama 有一个非常出色的特性，这也是众多开发者选择它的关键原因，即 Ollama 为所有支持的模型封装了统一的 API，并且兼容 OpenAI 数据格式。这一点至关重要，由于模型是由不同公司或团队训练的，每种模型原本都提供各自的开发接口。因此，Ollama进行统一封装后，用户在使用时就变得极为便。</p>
-<p>比如，我们编写 Agent 代码时，就会把标准的 OpenAI SDK 的 base_url 参数和模型名称做出修改。同样地，如果通过 Ollama 访问 DeepSeek，只需将 base_url 修改为 Ollama 的地址即可。后期如果需要切换到 Qwen 模型，也无需再修改 base_url，只需更换模型名称即可。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">client = OpenAI( api_key=os.getenv(&quot;AliDeep&quot;),</span><br><span class="line">base_url=&quot;https://dashscope.aliyuncs.com/compatible-mode/v1&quot;)</span><br></pre></td></tr></table></figure>
-
-<h1 id="Ollama部署DeepSeek-R1"><a href="#Ollama部署DeepSeek-R1" class="headerlink" title="Ollama部署DeepSeek-R1"></a>Ollama部署DeepSeek-R1</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>操作系统：Ubuntu 22.04，显卡：T4（16G显存）<br>使用 nvidia-smi 命令，确认 GPU 卡的驱动已经装好，可以被识别。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# nvidia-smi                                                                                                                                                </span><br><span class="line">Mon Mar 17 12:14:48 2025                                                                                                                                                 </span><br><span class="line">+-----------------------------------------------------------------------------+                                                                                          </span><br><span class="line">| NVIDIA-SMI 515.76       Driver Version: 515.76       CUDA Version: 11.7     |                                                                                          </span><br><span class="line">|-------------------------------+----------------------+----------------------+                                                                                          </span><br><span class="line">| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |                                                                                          </span><br><span class="line">| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |                                                                                          </span><br><span class="line">|                               |                      |               MIG M. |                                                                                          </span><br><span class="line">|===============================+======================+======================|                                                                                          </span><br><span class="line">|   0  Tesla T4            Off  | 00000000:00:07.0 Off |                    0 |                                                                                          </span><br><span class="line">| N/A   42C    P0    25W /  70W |      2MiB / 15360MiB |      0%      Default |                                                                                          </span><br><span class="line">|                               |                      |                  N/A |                                                                                          </span><br><span class="line">+-------------------------------+----------------------+----------------------+                                                                                                                                                                                    </span><br><span class="line">                                                                                                                                                                         </span><br><span class="line">+-----------------------------------------------------------------------------+                                                                                          </span><br><span class="line">| Processes:                                                                  |                                                                                          </span><br><span class="line">|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |                                                                                          </span><br><span class="line">|        ID   ID                                                   Usage      |                                                                                          </span><br><span class="line">|=============================================================================|                                                                                          </span><br><span class="line">|  No running processes found                                                 |                                                                                          </span><br><span class="line">+-----------------------------------------------------------------------------+ </span><br></pre></td></tr></table></figure>
-
-<h2 id="安装-Ollama"><a href="#安装-Ollama" class="headerlink" title="安装 Ollama"></a>安装 Ollama</h2><p>官方推荐的 Docker 方式部署 Ollama，便于进行版本的管理与测试。<br>首先将 Ollama 镜像下载到本地，由于国内无法访问DockerHub，因此大家可以使用后面命令中的代理地址访问：</p>
-<pre><code>docker pull docker.1ms.run/ollama/ollama:0.5.11
-</code></pre>
-<p>之后使用命令启动 Ollama 容器：</p>
-<pre><code>docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11
-</code></pre>
-<p><em><strong>命令详解：</strong></em><br>-d 表示以守护进程方式运行容器,后台运行。<br>-p 8880:11434 将容器的11434端口映射到宿主机的8880端口，11434为Ollama默认提供API访问的端口。<br>–gpus device&#x3D;0 表示该容器使用GPU 0号卡，通过前面执行nvidia-smi命令时知道的。<br>–name DeepSeek-R1-1 给容器起一个名字 最后是容器镜像的名称。</p>
-<p>执行创建容器命令之后，可以通过docker ps命令查询到容器的信息。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker ps         </span><br><span class="line">CONTAINER ID   IMAGE                                 COMMAND               CREATED          STATUS         PORTS                                           NAMES         </span><br><span class="line">7049f65fd9d3   docker.1ms.run/ollama/ollama:0.5.11   &quot;/bin/ollama serve&quot;   10 seconds ago   Up 9 seconds   0.0.0.0:8880-&gt;11434/tcp, [::]:8880-&gt;11434/tcp   DeepSeek-R1-1</span><br></pre></td></tr></table></figure>
-
-<p>创建ollama容器，经常会报如下的错误：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11</span><br><span class="line">7049f65fd9d3a539aa7660eb664caa585dba188720f0975701b73d87263b6cdf                                                                                                  </span><br><span class="line">docker: Error response from daemon: could not select device driver &quot;&quot; with capabilities: [[gpu]]. </span><br></pre></td></tr></table></figure>
-<p>这是因为服务器的 NVIDIA Container Toolkit 没有装，需要执行如下命令安装一下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">distribution=$(. /etc/os-release;echo $ID$VERSION_ID)</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="line">apt-get update</span><br><span class="line">apt-get install -y nvidia-docker2</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
-
-<p>安装完成后，执行 docker info 命令，确保 docker 守护进程已经正确配置 GPU 支持。命令和输出如下：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker info | grep -i nvidia                                                                                                                              </span><br><span class="line"> Runtimes: io.containerd.runc.v2 nvidia runc</span><br></pre></td></tr></table></figure>
-
-<p>此时再重新 docker run，就可以将 Ollama 容器拉起了。</p>
-<h2 id="部署与测试-DeepSeek-R1"><a href="#部署与测试-DeepSeek-R1" class="headerlink" title="部署与测试 DeepSeek-R1"></a>部署与测试 DeepSeek-R1</h2><p>Ollama 官方提供了一个可视化的模型仓库，便于我们了解 Ollama 已经支持了哪些模型，以及下载模型。仓库的地址是：<a href="https://ollama.com/library">https://ollama.com/library</a><br>点开链接后，找到 DeepSeek-R1 模型，共分为 1.5b 到 671b 多个版本。<br><img src="/images/article_image/deepseek_Deployment_2.png" alt="Alt"></p>
-<p>点进去之后可以选择模型版本以及看到模型运行命令，更新记录等。</p>
-<h3 id="两种-Ollama-拉起-DeepSeek-R1-的方案"><a href="#两种-Ollama-拉起-DeepSeek-R1-的方案" class="headerlink" title="两种 Ollama 拉起 DeepSeek-R1 的方案"></a>两种 Ollama 拉起 DeepSeek-R1 的方案</h3><h4 id="在容器内下载模型和拉起"><a href="#在容器内下载模型和拉起" class="headerlink" title="在容器内下载模型和拉起"></a>在容器内下载模型和拉起</h4><p>我们需要进入到 Ollama 容器的内部，去执行模型运行命令。进入容器的命令为：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker exec -it &lt;你的容器名称或 ID&gt; /bin/bash</span><br></pre></td></tr></table></figure>
-<p>然后执行模型运行命令：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:32b</span><br></pre></td></tr></table></figure>
-<p>输出如下，由于本地没有模型，所以，会先在模型仓库下载模型，我们需要耐心等待模型下载完毕。<br><img src="/images/article_image/deepseek_Deployment_3.png" alt="Alt"><br>下载完成后，就会加载模型，直到出现 success，模型就加载好了。<br><img src="/images/article_image/deepseek_Deployment_4.png" alt="Alt"><br>直接输入对话，测试效果。例如：<br><img src="/images/article_image/deepseek_Deployment_5.png" alt="Alt"><br>可以看到，模型带有 DeepSeek-R1 标志性的 <think></think> 也就是深度思考，但是由于我们问的问题太简单了，模型认为不需要深度思考就能回答，因此就直接回答了。</p>
-<h4 id="将模型文件挂载进容器（推荐）"><a href="#将模型文件挂载进容器（推荐）" class="headerlink" title="将模型文件挂载进容器（推荐）"></a>将模型文件挂载进容器（推荐）</h4><p>高可用部署需要至少起两个 Ollama容器，因此用这种方式只下载一次模型文件就可以，比较方便。</p>
-<p>执行如下命令，在服务器上安装 Ollama 工具。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -fsSL https://ollama.com/install.sh | sh</span><br></pre></td></tr></table></figure>
-<p>之后直接将模型下载到本地：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ollama pull deepseek-r1:32b</span><br></pre></td></tr></table></figure>
-<p>启动容器，将模型挂载进去，需要注意 Ollama 在 ubuntu 服务器上的默认是模型文件存放目录 &#x2F;usr&#x2F;share&#x2F;ollama&#x2F;.ollama&#x2F;models，但是在容器中的目录是 &#x2F;root&#x2F;.ollama&#x2F;models，挂载时要写成服务器目录: 容器目录的格式，注意不要写反了。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -dp 8880:11434 --runtime=nvidia --gpus device=0 --name DeepSeek-R1-1 -v /usr/share/ollama/.ollama/models:/root/.ollama/models docker.1ms.run/ollama/ollama:0.5.11</span><br></pre></td></tr></table></figure>
-<p>最后查看容器中的模型是否已经运行：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker ps CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 9a44f04e78f7 docker.1ms.run/ollama/ollama:0.5.11 &quot;/bin/ollama serve&quot; 6 minutes ago Up 6 minutes 0.0.0.0:8880-&gt;11434/tcp,</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>DeepSeek</category>
-      </categories>
-      <tags>
-        <tag>Ollama</tag>
-        <tag>Deepseek</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Docker部署MongoDB分片+副本集集群（实战）</title>
     <url>/2020/12/10/datebases/mongodb/</url>
     <content><![CDATA[<p>在实际生产环境中，我们往往需要对数据进行分片，以满足业务的需求，本文将介绍如何使用Docker部署MongoDB分片+副本集集群。</p>
@@ -198,60 +101,44 @@
       </tags>
   </entry>
   <entry>
-    <title>etcd数据备份与恢复</title>
-    <url>/2021/02/28/kubernetes/etcd_backup/</url>
-    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
+    <title>Windows 11部署Dify-AI应用开发</title>
+    <url>/2025/03/26/AIagent/dify_deployment/</url>
+    <content><![CDATA[<h1 id="什么是-Dify-？"><a href="#什么是-Dify-？" class="headerlink" title="什么是 Dify ？"></a>什么是 Dify ？</h1><p>Dify 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service）和 LLMOps 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。</p>
 <span id="more"></span>
-
 <hr>
-<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
+<p>由于 Dify 内置了构建 LLM 应用所需的关键技术栈，包括对数百个模型的支持、直观的 Prompt 编排界面、高质量的 RAG 引擎、稳健的 Agent 框架、灵活的流程编排，并同时提供了一套易用的界面和 API。这为开发者节省了许多重复造轮子的时间，使其可以专注在创新和业务需求上。</p>
+<p>下面我们开始本地部署Dify</p>
+<p><strong>前提条件（官方建议配置）</strong><br>安装 Dify 之前, 请确保你的机器已满足最低安装要求：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CPU &gt;= 2 Core</span><br><span class="line">RAM &gt;= 4 GiB</span><br></pre></td></tr></table></figure>
 
-<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
+<h1 id="Windows11-安装Docker和WSL"><a href="#Windows11-安装Docker和WSL" class="headerlink" title="Windows11 安装Docker和WSL"></a>Windows11 安装Docker和WSL</h1><h2 id="安装wsl"><a href="#安装wsl" class="headerlink" title="安装wsl"></a>安装wsl</h2><p>进入cmd或者powershell执行wsl –update，一般下载比较慢，可以从github (<a href="https://github.com/microsoft/WSL/releases%EF%BC%89%E4%B8%8B%E8%BD%BD%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%8C%E7%84%B6%E5%90%8E%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF">https://github.com/microsoft/WSL/releases）下载，如下图所示，然后安装即可</a><br><img src="/images/article_image/dify_Deployment_2.png" alt="Alt"></p>
+<h2 id="安装Docker-Desktop"><a href="#安装Docker-Desktop" class="headerlink" title="安装Docker Desktop"></a>安装Docker Desktop</h2><p>进入Docker的官方网站<a href="https://www.docker.com,点击下载amd64版本,如图1所示.然后安装即可./">https://www.docker.com，点击下载AMD64版本，如图1所示。然后安装即可。</a><br><img src="/images/article_image/dify_Deployment_3.png" alt="Alt"></p>
+<h1 id="安装Dify"><a href="#安装Dify" class="headerlink" title="安装Dify"></a>安装Dify</h1><h2 id="克隆-Dify-代码仓库"><a href="#克隆-Dify-代码仓库" class="headerlink" title="克隆 Dify 代码仓库"></a>克隆 Dify 代码仓库</h2><p>克隆 Dify 源代码至本地环境。我下载是最新的1.1.3<br><code>git clone https://github.com/langgenius/dify.git --branch 1.1.3 </code></p>
+<p><em><strong>如果本地没有安装git，可以直接到github下载压缩包到本地再解压</strong></em></p>
+<h2 id="启动-Dify"><a href="#启动-Dify" class="headerlink" title="启动 Dify"></a>启动 Dify</h2><h3 id="进入-Dify-源代码的-Docker-目录"><a href="#进入-Dify-源代码的-Docker-目录" class="headerlink" title="进入 Dify 源代码的 Docker 目录"></a>进入 Dify 源代码的 Docker 目录</h3><p><strong>你自己解压的路径</strong><br><code>cd D:\Software\dify-1.1.3\docker</code></p>
+<h3 id="复制环境配置文件"><a href="#复制环境配置文件" class="headerlink" title="复制环境配置文件"></a>复制环境配置文件</h3><p><code>cp .env.example .env</code></p>
+<p><em><strong>（填坑）注意</strong></em>：windows环境部署，需要更改.env文件的换行格式，可通过vscode打开，否则部署后，在访问localhost\install页面时会出现了internal server error报错，并且无法出现注册页面。.env文件更改（LF改为CRLF），保存文件即可，如下图所示：<br><img src="/images/article_image/dify_Deployment_4.png" alt="Alt"></p>
+<h3 id="部署Dify容器"><a href="#部署Dify容器" class="headerlink" title="部署Dify容器"></a>部署Dify容器</h3><ul>
+<li>打开docker desktop界面，添加国内镜像加速（推荐，否则下载会失败），添加后重启docker，如下图所示：<br><img src="/images/article_image/dify_Deployment_5.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_6.png" alt="Alt"></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&quot;registry-mirror&quot;: [</span><br><span class="line">    &quot;https://registry.cn-shenzhen.aliyuncs.com&quot;</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
 
-<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
+<ul>
+<li>根据你系统上的 Docker Compose 版本，选择合适的命令来启动容器。你可以通过 $ docker compose version 命令检查版本，详细说明请参考 Docker 官方文档：<br>我安装的版本是 Docker Compose V2，所以使用以下命令：</li>
+</ul>
+<p><code>docker compose up -d</code><br>运行命令后，你应该会看到类似以下的输出，显示所有容器的状态：<br><img src="/images/article_image/dify_Deployment_7.png" alt="Alt"></p>
+<p>最后检查是否所有容器都正常运行：<br><code>docker compose ps</code><br><img src="/images/article_image/dify_Deployment_8.png" alt="Alt"></p>
+<h3 id="访问-Dify"><a href="#访问-Dify" class="headerlink" title="访问 Dify"></a>访问 Dify</h3><p>你可以先前往管理员初始化页面，设置管理员账户：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 本地环境</span><br><span class="line">http://localhost/install</span><br><span class="line"></span><br><span class="line"># 服务器环境</span><br><span class="line">http://your_server_ip/install</span><br></pre></td></tr></table></figure>
 
-<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
-
-<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
-
-<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
+<h3 id="docker-compose-停止或者启动dify项目"><a href="#docker-compose-停止或者启动dify项目" class="headerlink" title="docker compose 停止或者启动dify项目"></a>docker compose 停止或者启动dify项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker compose stop</span><br><span class="line">docker compose start</span><br></pre></td></tr></table></figure>
+<p><img src="/images/article_image/dify_Deployment_9.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_10.png" alt="Alt"></p>
 ]]></content>
       <categories>
-        <category>kubernetes</category>
-        <category>etcd</category>
+        <category>Dify</category>
       </categories>
       <tags>
-        <tag>kubernetes</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2021/02/26/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
+        <tag>Dify</tag>
       </tags>
   </entry>
   <entry>
@@ -334,79 +221,60 @@ rabbitmqctl cluster_status
       </tags>
   </entry>
   <entry>
-    <title>Log-pilot日志采集收集java堆栈异常日志</title>
-    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
-    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
+    <title>etcd数据备份与恢复</title>
+    <url>/2021/02/28/kubernetes/etcd_backup/</url>
+    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
 <span id="more"></span>
+
 <hr>
-<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
-<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
-<pre><code> 参数详情：
-</code></pre>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
-<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
+<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
+
+<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
+
+<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
+
+<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
+
+<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>kubernetes</category>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2021/02/26/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
 ]]></content>
       <categories>
         <category>Docker</category>
       </categories>
       <tags>
-        <tag>日志采集</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux 命令（2）—— xargs 命令</title>
-    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
-    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
-<span id="more"></span>
-
-<hr>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
-
-
-
-<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
-
-<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
-
-<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
-
-<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
-<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
-echo `0123`4 56789 
-`0123`4 56789
-</code></pre>
-<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
-<pre><code>echo `01234` 56789
--bash: 01234: command not found
-56789
-</code></pre>
-<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
-
-<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
-
-<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
-
-<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
-
-<p>（6）将文件内容以空格分隔合并为一行输出。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
-
-<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>常用命令</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -495,6 +363,26 @@ echo `0123`4 56789
       </tags>
   </entry>
   <entry>
+    <title>Log-pilot日志采集收集java堆栈异常日志</title>
+    <url>/2020/05/22/log_dataesource/Log-pilot/</url>
+    <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
+<span id="more"></span>
+<hr>
+<p>一、k8s集群日志收集方案<br>       在测试环境部署了log-polit+elk的方案；部署完成之后，日志系统收集java多行异常日志，存在kibana分行的现象，如下图所示:<br>       <img src="/images/article_image/log-pliot_1.png" alt="Alt"></p>
+<p>二、配置Log-polit<br>1）经过多次的测试，Fliebeat需要更改配置才能处理跨多行日志。使用Log-pilot组件，采集插件支持Filebeat、Fluentd两种，Log-Pilot 能够自动感知宿主机上容器的创建删除事件，进而动态配置容器日志采集配置文件，因此Filebeat、Fluentd的采集配置是有固定模板，配置则需要在Log-poilt打包镜像前配置。<br> 2）本人使用的版本为：log-pilot:v0.9.7-filebeat， log-polit官方源码：<a href="https://github.com/AliyunContainerService/log-pilot.git">https://github.com/AliyunContainerService/log-pilot.git</a> ，通过git clone 下载到本地，在filebeat.tpl文件中添加红框中的的参数，如下图所示:<br> <img src="/images/article_image/log-pliot_2.png" alt="Alt"></p>
+<pre><code> 参数详情：
+</code></pre>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">multiline.pattern: &#x27;^\[&#x27;   	  // 匹配是将多行日志所有不是以[符号开头的行合并成一行</span><br><span class="line">multiline.negate: true		 //  是否需要对pattern条件转置使用，不翻转设为true，反转设置为false</span><br><span class="line">multiline.match: after 		//   匹配pattern后，与前面（before）还是后面（after）的内容合并为一条日志</span><br></pre></td></tr></table></figure>
+<p>3）使用代码库的Dockerfile重新生成镜像、部署，kibana显示的日志合并为一行，如下图：<br><img src="/images/article_image/log-pliot_3.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>日志采集</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>什么是MCP协议</title>
     <url>/2025/04/05/mcp/mcp-protocol/</url>
     <content><![CDATA[<h1 id="什么是MCP协议？"><a href="#什么是MCP协议？" class="headerlink" title="什么是MCP协议？"></a>什么是MCP协议？</h1><p>MCP（Model Capability Protocol）是一种用于连接大模型能力和应用的标准协议。它提供了一种统一的方式来封装和暴露各种AI模型能力，使开发者可以更加便捷地调用这些能力，而无需关心底层模型的具体实现细节。</p>
@@ -555,6 +443,118 @@ echo `0123`4 56789
       </categories>
       <tags>
         <tag>mcp</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux 命令（2）—— xargs 命令</title>
+    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
+    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
+<span id="more"></span>
+
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
+
+
+
+<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
+
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
+
+<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
+
+<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
+<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
+echo `0123`4 56789 
+`0123`4 56789
+</code></pre>
+<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
+<pre><code>echo `01234` 56789
+-bash: 01234: command not found
+56789
+</code></pre>
+<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
+
+<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
+
+<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（6）将文件内容以空格分隔合并为一行输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
+
+<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>常用命令</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>本地部署Ollama+DeepSeek-R1</title>
+    <url>/2025/03/17/deepseek/ollama_deepseek_deployment/</url>
+    <content><![CDATA[<h1 id="什么是-Ollama-？"><a href="#什么是-Ollama-？" class="headerlink" title="什么是 Ollama ？"></a>什么是 Ollama ？</h1><p>Ollama是一个专为在本地机器上便捷部署和运行大型语言模型（LLM）而设计的开源框架，它可以用简单的命令行快捷部署多种大模型，例如 DeepSeek、Qwen、Llama3 等等模型。</p>
+<span id="more"></span>
+<hr>
+<p>Ollama 有一个非常出色的特性，这也是众多开发者选择它的关键原因，即 Ollama 为所有支持的模型封装了统一的 API，并且兼容 OpenAI 数据格式。这一点至关重要，由于模型是由不同公司或团队训练的，每种模型原本都提供各自的开发接口。因此，Ollama进行统一封装后，用户在使用时就变得极为便。</p>
+<p>比如，我们编写 Agent 代码时，就会把标准的 OpenAI SDK 的 base_url 参数和模型名称做出修改。同样地，如果通过 Ollama 访问 DeepSeek，只需将 base_url 修改为 Ollama 的地址即可。后期如果需要切换到 Qwen 模型，也无需再修改 base_url，只需更换模型名称即可。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">client = OpenAI( api_key=os.getenv(&quot;AliDeep&quot;),</span><br><span class="line">base_url=&quot;https://dashscope.aliyuncs.com/compatible-mode/v1&quot;)</span><br></pre></td></tr></table></figure>
+
+<h1 id="Ollama部署DeepSeek-R1"><a href="#Ollama部署DeepSeek-R1" class="headerlink" title="Ollama部署DeepSeek-R1"></a>Ollama部署DeepSeek-R1</h1><h2 id="环境准备"><a href="#环境准备" class="headerlink" title="环境准备"></a>环境准备</h2><p>操作系统：Ubuntu 22.04，显卡：T4（16G显存）<br>使用 nvidia-smi 命令，确认 GPU 卡的驱动已经装好，可以被识别。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# nvidia-smi                                                                                                                                                </span><br><span class="line">Mon Mar 17 12:14:48 2025                                                                                                                                                 </span><br><span class="line">+-----------------------------------------------------------------------------+                                                                                          </span><br><span class="line">| NVIDIA-SMI 515.76       Driver Version: 515.76       CUDA Version: 11.7     |                                                                                          </span><br><span class="line">|-------------------------------+----------------------+----------------------+                                                                                          </span><br><span class="line">| GPU  Name        Persistence-M| Bus-Id        Disp.A | Volatile Uncorr. ECC |                                                                                          </span><br><span class="line">| Fan  Temp  Perf  Pwr:Usage/Cap|         Memory-Usage | GPU-Util  Compute M. |                                                                                          </span><br><span class="line">|                               |                      |               MIG M. |                                                                                          </span><br><span class="line">|===============================+======================+======================|                                                                                          </span><br><span class="line">|   0  Tesla T4            Off  | 00000000:00:07.0 Off |                    0 |                                                                                          </span><br><span class="line">| N/A   42C    P0    25W /  70W |      2MiB / 15360MiB |      0%      Default |                                                                                          </span><br><span class="line">|                               |                      |                  N/A |                                                                                          </span><br><span class="line">+-------------------------------+----------------------+----------------------+                                                                                                                                                                                    </span><br><span class="line">                                                                                                                                                                         </span><br><span class="line">+-----------------------------------------------------------------------------+                                                                                          </span><br><span class="line">| Processes:                                                                  |                                                                                          </span><br><span class="line">|  GPU   GI   CI        PID   Type   Process name                  GPU Memory |                                                                                          </span><br><span class="line">|        ID   ID                                                   Usage      |                                                                                          </span><br><span class="line">|=============================================================================|                                                                                          </span><br><span class="line">|  No running processes found                                                 |                                                                                          </span><br><span class="line">+-----------------------------------------------------------------------------+ </span><br></pre></td></tr></table></figure>
+
+<h2 id="安装-Ollama"><a href="#安装-Ollama" class="headerlink" title="安装 Ollama"></a>安装 Ollama</h2><p>官方推荐的 Docker 方式部署 Ollama，便于进行版本的管理与测试。<br>首先将 Ollama 镜像下载到本地，由于国内无法访问DockerHub，因此大家可以使用后面命令中的代理地址访问：</p>
+<pre><code>docker pull docker.1ms.run/ollama/ollama:0.5.11
+</code></pre>
+<p>之后使用命令启动 Ollama 容器：</p>
+<pre><code>docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11
+</code></pre>
+<p><em><strong>命令详解：</strong></em><br>-d 表示以守护进程方式运行容器,后台运行。<br>-p 8880:11434 将容器的11434端口映射到宿主机的8880端口，11434为Ollama默认提供API访问的端口。<br>–gpus device&#x3D;0 表示该容器使用GPU 0号卡，通过前面执行nvidia-smi命令时知道的。<br>–name DeepSeek-R1-1 给容器起一个名字 最后是容器镜像的名称。</p>
+<p>执行创建容器命令之后，可以通过docker ps命令查询到容器的信息。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker ps         </span><br><span class="line">CONTAINER ID   IMAGE                                 COMMAND               CREATED          STATUS         PORTS                                           NAMES         </span><br><span class="line">7049f65fd9d3   docker.1ms.run/ollama/ollama:0.5.11   &quot;/bin/ollama serve&quot;   10 seconds ago   Up 9 seconds   0.0.0.0:8880-&gt;11434/tcp, [::]:8880-&gt;11434/tcp   DeepSeek-R1-1</span><br></pre></td></tr></table></figure>
+
+<p>创建ollama容器，经常会报如下的错误：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker run -dp 8880:11434 --gpus device=0 --name DeepSeek-R1-1 docker.1ms.run/ollama/ollama:0.5.11</span><br><span class="line">7049f65fd9d3a539aa7660eb664caa585dba188720f0975701b73d87263b6cdf                                                                                                  </span><br><span class="line">docker: Error response from daemon: could not select device driver &quot;&quot; with capabilities: [[gpu]]. </span><br></pre></td></tr></table></figure>
+<p>这是因为服务器的 NVIDIA Container Toolkit 没有装，需要执行如下命令安装一下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">distribution=$(. /etc/os-release;echo $ID$VERSION_ID)</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/gpgkey | sudo apt-key add -</span><br><span class="line">curl -s -L https://nvidia.github.io/nvidia-docker/$distribution/nvidia-docker.list | sudo tee /etc/apt/sources.list.d/nvidia-docker.list</span><br><span class="line">apt-get update</span><br><span class="line">apt-get install -y nvidia-docker2</span><br><span class="line">systemctl restart docker</span><br></pre></td></tr></table></figure>
+
+<p>安装完成后，执行 docker info 命令，确保 docker 守护进程已经正确配置 GPU 支持。命令和输出如下：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker info | grep -i nvidia                                                                                                                              </span><br><span class="line"> Runtimes: io.containerd.runc.v2 nvidia runc</span><br></pre></td></tr></table></figure>
+
+<p>此时再重新 docker run，就可以将 Ollama 容器拉起了。</p>
+<h2 id="部署与测试-DeepSeek-R1"><a href="#部署与测试-DeepSeek-R1" class="headerlink" title="部署与测试 DeepSeek-R1"></a>部署与测试 DeepSeek-R1</h2><p>Ollama 官方提供了一个可视化的模型仓库，便于我们了解 Ollama 已经支持了哪些模型，以及下载模型。仓库的地址是：<a href="https://ollama.com/library">https://ollama.com/library</a><br>点开链接后，找到 DeepSeek-R1 模型，共分为 1.5b 到 671b 多个版本。<br><img src="/images/article_image/deepseek_Deployment_2.png" alt="Alt"></p>
+<p>点进去之后可以选择模型版本以及看到模型运行命令，更新记录等。</p>
+<h3 id="两种-Ollama-拉起-DeepSeek-R1-的方案"><a href="#两种-Ollama-拉起-DeepSeek-R1-的方案" class="headerlink" title="两种 Ollama 拉起 DeepSeek-R1 的方案"></a>两种 Ollama 拉起 DeepSeek-R1 的方案</h3><h4 id="在容器内下载模型和拉起"><a href="#在容器内下载模型和拉起" class="headerlink" title="在容器内下载模型和拉起"></a>在容器内下载模型和拉起</h4><p>我们需要进入到 Ollama 容器的内部，去执行模型运行命令。进入容器的命令为：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker exec -it &lt;你的容器名称或 ID&gt; /bin/bash</span><br></pre></td></tr></table></figure>
+<p>然后执行模型运行命令：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ollama run deepseek-r1:32b</span><br></pre></td></tr></table></figure>
+<p>输出如下，由于本地没有模型，所以，会先在模型仓库下载模型，我们需要耐心等待模型下载完毕。<br><img src="/images/article_image/deepseek_Deployment_3.png" alt="Alt"><br>下载完成后，就会加载模型，直到出现 success，模型就加载好了。<br><img src="/images/article_image/deepseek_Deployment_4.png" alt="Alt"><br>直接输入对话，测试效果。例如：<br><img src="/images/article_image/deepseek_Deployment_5.png" alt="Alt"><br>可以看到，模型带有 DeepSeek-R1 标志性的 <think></think> 也就是深度思考，但是由于我们问的问题太简单了，模型认为不需要深度思考就能回答，因此就直接回答了。</p>
+<h4 id="将模型文件挂载进容器（推荐）"><a href="#将模型文件挂载进容器（推荐）" class="headerlink" title="将模型文件挂载进容器（推荐）"></a>将模型文件挂载进容器（推荐）</h4><p>高可用部署需要至少起两个 Ollama容器，因此用这种方式只下载一次模型文件就可以，比较方便。</p>
+<p>执行如下命令，在服务器上安装 Ollama 工具。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -fsSL https://ollama.com/install.sh | sh</span><br></pre></td></tr></table></figure>
+<p>之后直接将模型下载到本地：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ollama pull deepseek-r1:32b</span><br></pre></td></tr></table></figure>
+<p>启动容器，将模型挂载进去，需要注意 Ollama 在 ubuntu 服务器上的默认是模型文件存放目录 &#x2F;usr&#x2F;share&#x2F;ollama&#x2F;.ollama&#x2F;models，但是在容器中的目录是 &#x2F;root&#x2F;.ollama&#x2F;models，挂载时要写成服务器目录: 容器目录的格式，注意不要写反了。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -dp 8880:11434 --runtime=nvidia --gpus device=0 --name DeepSeek-R1-1 -v /usr/share/ollama/.ollama/models:/root/.ollama/models docker.1ms.run/ollama/ollama:0.5.11</span><br></pre></td></tr></table></figure>
+<p>最后查看容器中的模型是否已经运行：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">root@lptest001:~# docker ps CONTAINER ID IMAGE COMMAND CREATED STATUS PORTS NAMES 9a44f04e78f7 docker.1ms.run/ollama/ollama:0.5.11 &quot;/bin/ollama serve&quot; 6 minutes ago Up 6 minutes 0.0.0.0:8880-&gt;11434/tcp,</span><br></pre></td></tr></table></figure>]]></content>
+      <categories>
+        <category>DeepSeek</category>
+      </categories>
+      <tags>
+        <tag>Ollama</tag>
+        <tag>Deepseek</tag>
       </tags>
   </entry>
 </search>
