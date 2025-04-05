@@ -42,32 +42,6 @@
       </tags>
   </entry>
   <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2021/02/26/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
-
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
-
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Docker</category>
-      </categories>
-      <tags>
-        <tag>Docker</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>本地部署Ollama+DeepSeek-R1</title>
     <url>/2025/03/17/deepseek/ollama_deepseek_deployment/</url>
     <content><![CDATA[<h1 id="什么是-Ollama-？"><a href="#什么是-Ollama-？" class="headerlink" title="什么是 Ollama ？"></a>什么是 Ollama ？</h1><p>Ollama是一个专为在本地机器上便捷部署和运行大型语言模型（LLM）而设计的开源框架，它可以用简单的命令行快捷部署多种大模型，例如 DeepSeek、Qwen、Llama3 等等模型。</p>
@@ -219,8 +193,65 @@
         <category>MongoDB</category>
       </categories>
       <tags>
-        <tag>Docker</tag>
         <tag>MongoDB</tag>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>etcd数据备份与恢复</title>
+    <url>/2021/02/28/kubernetes/etcd_backup/</url>
+    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
+
+<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
+
+<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
+
+<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
+
+<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>kubernetes</category>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>kubernetes</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2021/02/26/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
       </tags>
   </entry>
   <entry>
@@ -303,37 +334,6 @@ rabbitmqctl cluster_status
       </tags>
   </entry>
   <entry>
-    <title>etcd数据备份与恢复</title>
-    <url>/2021/02/28/kubernetes/etcd_backup/</url>
-    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
-<span id="more"></span>
-
-<hr>
-<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
-
-<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
-
-<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
-
-<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
-
-<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>kubernetes</category>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>kubernetes</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>Log-pilot日志采集收集java堆栈异常日志</title>
     <url>/2020/05/22/log_dataesource/Log-pilot/</url>
     <content><![CDATA[<p>微服务应用发展迅速，建立一套集中式日志收集系统，将所有节点上的日志统一收集、管理、访问，将极大提高定位问题的效率。</p>
@@ -351,6 +351,62 @@ rabbitmqctl cluster_status
       </categories>
       <tags>
         <tag>日志采集</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Linux 命令（2）—— xargs 命令</title>
+    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
+    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
+<span id="more"></span>
+
+<hr>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
+
+
+
+<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
+
+<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
+
+<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
+
+<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
+<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
+echo `0123`4 56789 
+`0123`4 56789
+</code></pre>
+<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
+<pre><code>echo `01234` 56789
+-bash: 01234: command not found
+56789
+</code></pre>
+<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
+
+<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
+
+<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
+
+<p>（6）将文件内容以空格分隔合并为一行输出。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
+
+<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
+<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
+]]></content>
+      <categories>
+        <category>Linux</category>
+        <category>常用命令</category>
+      </categories>
+      <tags>
+        <tag>linux</tag>
       </tags>
   </entry>
   <entry>
@@ -499,62 +555,6 @@ rabbitmqctl cluster_status
       </categories>
       <tags>
         <tag>mcp</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Linux 命令（2）—— xargs 命令</title>
-    <url>/2021/03/03/linux_cmd/cmd_xargs/</url>
-    <content><![CDATA[<h1 id="命令简介"><a href="#命令简介" class="headerlink" title="命令简介"></a>命令简介</h1><p>xargs 可以将 stdin 中以空格或换行符进行分隔的数据，形成以空格分隔的参数（arguments），传递给其他命令。因为以空格作为分隔符，所以有一些文件名或者其他意义的字符串内含有空格的时候，xargs 可能会误判。简单来说，xargs 的作用是给其他命令传递参数，是构建单行命令的重要组件之一。</p>
-<span id="more"></span>
-
-<hr>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">转自：https://dablelv.blog.csdn.net/article/details/77151267</span><br></pre></td></tr></table></figure>
-
-
-
-<p>之所以要用到 xargs，是因为很多命令不支持使用管道 | 来传递参数，例如：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">find /sbin -perm +700 | ls -l         # 这个命令是错误,因为标准输入不能作为ls的参数</span><br><span class="line">find /sbin -perm +700 | xargs ls -l   # 这样才是正确的</span><br></pre></td></tr></table></figure>
-
-<h1 id="命令格式"><a href="#命令格式" class="headerlink" title="命令格式"></a>命令格式</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">xargs [OPTIONS] [COMMAND]</span><br></pre></td></tr></table></figure>
-
-<h2 id="选项说明"><a href="#选项说明" class="headerlink" title="选项说明"></a>选项说明</h2><p>注意，长选项的强制性参数对于短选项也是强制的。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-0, --null</span><br><span class="line">	如果输入的 stdin 含有特殊字符，例如反引号 `、反斜杠 \、空格等字符时，xargs 将它还原成一般字符。为默认选项</span><br><span class="line">-a, --arg-file=FILE</span><br><span class="line">	从指定的文件 FILE 中读取输入内容而不是从标准输入</span><br><span class="line">-d, --delimiter=DEL</span><br><span class="line">	指定 xargs 处理输入内容时的分隔符。xargs 处理输入内容默认是按空格和换行符作为分隔符，输出 arguments 时按空格分隔</span><br><span class="line">-E EOF_STR</span><br><span class="line">	EOF_STR 是 end of file string，表示输入的结束</span><br><span class="line">-e, --eof[=EOF_STR]</span><br><span class="line">	作用等同于 -E 选项，与 -E 选项不同时，该选项不符合 POSIX 标准且 EOF_STR 不是强制的。如果没有 EOF_STR 则表示输入没有结束符</span><br><span class="line">-I REPLACE_STR</span><br><span class="line">	将 xargs 输出的每一项参数单独赋值给后面的命令，参数需要用指定的替代字符串 REPLACE_STR 代替。REPLACE_STR 可以使用 &#123;&#125; $ @ 等符号，其主要作用是当 xargs command 后有多个参数时，调整参数位置。例如备份以 txt 为后缀的文件：find . -name &quot;*.txt&quot; | xargs -I &#123;&#125;  cp &#123;&#125; /tmp/&#123;&#125;.bak</span><br><span class="line">-i, --replace[=REPLACE_STR]</span><br><span class="line">	作用同 -I 选项，参数 REPLACE_STR 是可选的，缺省为 &#123;&#125;。建议使用 -I 选项，因为其符合 POSIX</span><br><span class="line">-L MAX_LINES</span><br><span class="line">	限定最大输入行数。隐含了 -x 选项</span><br><span class="line">-l, --max-lines[=MAX_LINES]</span><br><span class="line">	作用同 -L 选项，参数 MAX_LINES 是可选的，缺省为 1。建议使用 -L 选项，因为其符合 POSIX 标准</span><br><span class="line">-n, --max-args=MAX_ARGS</span><br><span class="line">	表示命令在执行的时候一次使用参数的最大个数</span><br><span class="line">-o, --open-tty</span><br><span class="line">	在执行命令之前，在子进程中重新打开stdin作为/dev/TTY。如果您希望xargs运行交互式应用程序，这是非常有用的</span><br><span class="line">-P, --max-procs=MAX_PROCS</span><br><span class="line">	每次运行最大进程；缺省值为 1。如果 MAX_PROCS 为 0，xargs 将一次运行尽可能多的进程。一般和 -n 或 -L 选项一起使用</span><br><span class="line">-p, --interactive</span><br><span class="line">	当每次执行一个 argument 的时候询问一次用户</span><br><span class="line">--process-slot-var=NAME</span><br><span class="line">	将指定的环境变量设置为每个正在运行的子进程中的唯一值。一旦子进程退出，将重用该值。例如，这可以用于初始负荷分配方案</span><br><span class="line">-r, --no-run-if-empty</span><br><span class="line">	当 xargs 的输入为空的时候则停止 xargs，不用再去执行后面的命令了。为默认选项</span><br><span class="line">-s, --max-chars=MAX_CHARS</span><br><span class="line">	命令行的最大字符数，指的是 xargs 后面那个命令的最大命令行字符数，包括命令、空格和换行符。每个参数单独传入 xargs 后面的命令</span><br><span class="line">--show-limits</span><br><span class="line">	显示操作系统对命令行长度的限制</span><br><span class="line">-t， --verbose</span><br><span class="line">	先打印命令到标准错误输出，然后再执行</span><br><span class="line">-x, --exit</span><br><span class="line">	配合 -s 使用，当命令行字符数大于 -s 指定的数值时，退出 xargs</span><br><span class="line">--help</span><br><span class="line">	显示帮助信息并退出</span><br><span class="line">--version</span><br><span class="line">	显示版本信息并退出</span><br></pre></td></tr></table></figure>
-
-<h1 id="常用示例"><a href="#常用示例" class="headerlink" title="常用示例"></a>常用示例</h1><p>（1）将 Shell 的特殊字符反引号还原为一般字符。</p>
-<pre><code>echo &#39;`0123`4 56789&#39; | xargs -t echo
-echo `0123`4 56789 
-`0123`4 56789
-</code></pre>
-<p>如果直接进行如下操作，会报无法找到命令 01234 的错误，因为反引号在 Shell 中会将 01234 作为一个命令来执行，但是 01234 不是一个命令。-t 表示先打印命令，然后再执行。</p>
-<pre><code>echo `01234` 56789
--bash: 01234: command not found
-56789
-</code></pre>
-<p>（2）设置 xargs 读入参数时的结束标识，以逗号结束。这里要注意结束标志必须要是单独的字段，即以空格或者换行符分隔的字段。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo 01234 , 56789 | xargs -E &quot;,&quot;</span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
-
-<p>（3）使用 rm、mv 等命令同时操作多个文件时，有时会报 “argument list too long” 参数列表过长的错误，此时可以使用 xargs 来解决。xargs 将标准输入的字符串分隔后，作为参数传递给后面的命令。例如，给当前目录的所有文件添加后缀名。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ls | xargs -t -i mv &#123;&#125; &#123;&#125;.bak</span><br><span class="line"># 选择符合条件的文件</span><br><span class="line">ls | grep -E &quot;201701|201702|201703&quot; | xargs -I &#123;&#125; mv &#123;&#125; &#123;&#125;.bak</span><br></pre></td></tr></table></figure>
-
-<p>（4）设置命令行的最大字符数。参数默认一个一个单独传入命令中执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo &quot;01234 56789&quot; | xargs -t -s 11</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br><span class="line">echo 56789 </span><br><span class="line">56789</span><br></pre></td></tr></table></figure>
-
-<p>（5）设置标准输入中每次多少行作为命令的参数，默认是将标准输入中所有行的归并到一行一次性传给命令执行。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">echo -e &quot;01234\n56789\n01234&quot; | xargs -t -L 2 echo</span><br><span class="line">echo 01234 56789 </span><br><span class="line">01234 56789</span><br><span class="line">echo 01234 </span><br><span class="line">01234</span><br></pre></td></tr></table></figure>
-
-<p>（6）将文件内容以空格分隔合并为一行输出。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 列出文件内容</span><br><span class="line">cat test.txt</span><br><span class="line">a b c d e</span><br><span class="line">f g h i j </span><br><span class="line">k l m n o</span><br><span class="line"></span><br><span class="line"># 多行输入合并为一行输出</span><br><span class="line">cat test.txt | xargs</span><br><span class="line">a b c d e f g h i j k l m n o</span><br></pre></td></tr></table></figure>
-
-<p>（7）与 ps、grep、awk 和 kill 结合，强制终止指定进程。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ps -ef | grep spp | awk ‘&#123;printf “%s “,$2&#125;’ | xargs kill -9</span><br><span class="line"></span><br><span class="line"># ps -ef|grep spp 用于查找包含 spp 的进程，awk ‘&#123;printf “%s “,$2,FNR&#125;将目标进程 ID 打印输出，xargs kill -9 则将目标进程 ID 作为参数传递给kill -9用于杀死进程。</span><br></pre></td></tr></table></figure>
-<h1 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h1><p>[1] xargs(1) manual<br>[2] CSDN.Xargs用法详解<br>[3] CSDN.linux xargs详解</p>
-]]></content>
-      <categories>
-        <category>Linux</category>
-        <category>常用命令</category>
-      </categories>
-      <tags>
-        <tag>linux</tag>
       </tags>
   </entry>
 </search>
