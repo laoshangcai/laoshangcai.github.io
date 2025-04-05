@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"blog.kocdyun.top","root":"/","images":"/images","scheme":"Pisces","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12},"hljswrap":true,"copycode":{"enable":false,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="什么是MCP协议？MCP（Model Capability Protocol）是一种用于连接大模型能力和应用的标准协议。它提供了一种统一的方式来封装和暴露各种AI模型能力，使开发者可以更加便捷地调用这些能力，而无需关心底层模型的具体实现细节。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="什么是MCP协议">
+<meta property="og:url" content="http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/index.html">
+<meta property="og:site_name" content="Lupin Lao">
+<meta property="og:description" content="什么是MCP协议？MCP（Model Capability Protocol）是一种用于连接大模型能力和应用的标准协议。它提供了一种统一的方式来封装和暴露各种AI模型能力，使开发者可以更加便捷地调用这些能力，而无需关心底层模型的具体实现细节。">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2025-04-05T07:00:00.000Z">
+<meta property="article:modified_time" content="2025-04-05T08:01:33.920Z">
+<meta property="article:author" content="Lupin Lao">
+<meta property="article:tag" content="mcp">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/","path":"2025/04/05/mcp/mcp-protocol/","title":"什么是MCP协议"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>什么是MCP协议 | Lupin Lao</title>
+  
+
+
+
+
+
+
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2975824068662928"
+     crossorigin="anonymous"></script>
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">Lupin Lao</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">奔赴山海，保持热爱</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AFMCP%E5%8D%8F%E8%AE%AE%EF%BC%9F"><span class="nav-number">1.</span> <span class="nav-text">什么是MCP协议？</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MCP%E6%9E%B6%E6%9E%84"><span class="nav-number">2.</span> <span class="nav-text">MCP架构</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP%E5%8D%8F%E8%AE%AE%E6%9E%B6%E6%9E%84%E5%9B%BE"><span class="nav-number">2.1.</span> <span class="nav-text">MCP协议架构图</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MCP-Server"><span class="nav-number">3.</span> <span class="nav-text">MCP Server</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP-Server%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8"><span class="nav-number">3.1.</span> <span class="nav-text">MCP Server快速入门</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MCP-Client"><span class="nav-number">4.</span> <span class="nav-text">MCP Client</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#MCP-Client%E5%BF%AB%E9%80%9F%E5%85%A5%E9%97%A8"><span class="nav-number">4.1.</span> <span class="nav-text">MCP Client快速入门</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#MCP%E5%8D%8F%E8%AE%AE%E7%9A%84%E4%BC%98%E5%8A%BF"><span class="nav-number">5.</span> <span class="nav-text">MCP协议的优势</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%BB%E7%BB%93"><span class="nav-number">5.1.</span> <span class="nav-text">总结</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Lupin Lao"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">Lupin Lao</p>
+  <div class="site-description" itemprop="description">最近在学习DeepSeek应用开发</div>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/laoshangcai" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;laoshangcai" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:laoshangcce@163.com" title="E-Mail → mailto:laoshangcce@163.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+      <div class="wechat_OA">
+	        <span>欢迎关注我的公众号</span>
+	        <br>
+          <!-- 这里添加你的二维码图片 -->
+	        <img src ="images/gongzhonghao.png">
+      </div>
+    </div>
+
+    
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="Lupin Lao">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Lupin Lao">
+      <meta itemprop="description" content="最近在学习DeepSeek应用开发">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="什么是MCP协议 | Lupin Lao">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          什么是MCP协议
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+      
+
+      <time title="创建时间：2025-04-05 15:00:00 / 修改时间：16:01:33" itemprop="dateCreated datePublished" datetime="2025-04-05T15:00:00+08:00">2025-04-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/MCP/" itemprop="url" rel="index"><span itemprop="name">MCP</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><h1 id="什么是MCP协议？"><a href="#什么是MCP协议？" class="headerlink" title="什么是MCP协议？"></a>什么是MCP协议？</h1><p>MCP（Model Capability Protocol）是一种用于连接大模型能力和应用的标准协议。它提供了一种统一的方式来封装和暴露各种AI模型能力，使开发者可以更加便捷地调用这些能力，而无需关心底层模型的具体实现细节。</p>
+<span id="more"></span>
+<hr>
+<p>MCP协议的设计理念是将模型能力标准化、结构化，并通过简单的接口提供给应用开发者。这种设计使得模型提供方和应用开发方能够各自专注于自己的领域，大大提高了开发效率和系统的可扩展性。</p>
+<h1 id="MCP架构"><a href="#MCP架构" class="headerlink" title="MCP架构"></a>MCP架构</h1><p>MCP协议的核心架构包含以下几个关键组件：</p>
+<ol>
+<li><strong>MCP Server</strong>：模型能力的提供方，负责封装和暴露底层模型的能力。</li>
+<li><strong>MCP Client</strong>：应用开发方，通过调用MCP Server提供的接口来使用模型能力。</li>
+<li><strong>能力描述语言</strong>：用于描述模型能力的标准化语言，包括输入参数、输出格式等。</li>
+<li><strong>通信协议</strong>：定义了客户端和服务端之间的通信方式和数据格式。</li>
+</ol>
+<p>整个架构形成了一个清晰的能力提供和消费的闭环：模型提供方将其能力通过MCP Server暴露出来，应用开发方则通过MCP Client来调用这些能力，从而实现复杂的应用功能。</p>
+<h2 id="MCP协议架构图"><a href="#MCP协议架构图" class="headerlink" title="MCP协议架构图"></a>MCP协议架构图</h2><figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">+------------------------+     +-------------------------+</span><br><span class="line">|    应用开发方          |     |     模型提供方          |</span><br><span class="line">|                        |     |                         |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  |   MCP Client     |  |     |  |    MCP Server     |  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|         |              |     |          |              |</span><br><span class="line">|         | 能力调用请求  |     |          | 模型能力封装  |</span><br><span class="line">|         v              |     |          v              |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  |   业务应用逻辑   |  |     |  |   AI底层模型实现   |  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|                        |     |                         |</span><br><span class="line">+------------------------+     +-------------------------+</span><br><span class="line">           |                               ^</span><br><span class="line">           |                               |</span><br><span class="line">           +---------------+---------------+</span><br><span class="line">                           |</span><br><span class="line">                  +------------------+</span><br><span class="line">                  |                  |</span><br><span class="line">                  |   MCP通信协议    |</span><br><span class="line">                  |                  |</span><br><span class="line">                  +------------------+</span><br><span class="line">                  |                  |</span><br><span class="line">                  |  能力描述语言    |</span><br><span class="line">                  |                  |</span><br><span class="line">                  +------------------+</span><br></pre></td></tr></table></figure>
+
+<h1 id="MCP-Server"><a href="#MCP-Server" class="headerlink" title="MCP Server"></a>MCP Server</h1><p>MCP Server是整个MCP协议中的核心组件，它承担着模型能力提供者的角色。其主要职责包括：</p>
+<ol>
+<li><strong>能力封装</strong>：将底层模型的复杂接口转换为标准化的MCP接口。</li>
+<li><strong>接口暴露</strong>：提供RESTful API或其他形式的接口，供MCP Client调用。</li>
+<li><strong>请求处理</strong>：处理来自客户端的请求，包括参数验证、模型调用等。</li>
+<li><strong>结果返回</strong>：将模型处理的结果按照约定的格式返回给客户端。</li>
+</ol>
+<p>MCP Server的实现通常是一个轻量级的服务，它可以独立部署，也可以作为一个服务集成到现有的系统中。</p>
+<h2 id="MCP-Server快速入门"><a href="#MCP-Server快速入门" class="headerlink" title="MCP Server快速入门"></a>MCP Server快速入门</h2><p>下面是一个简单的MCP Server实现示例（Python版本）：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mcp-server.py</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟一个AI模型能力</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">translate_text</span>(<span class="params">text, target_language</span>):</span><br><span class="line">    <span class="comment"># 实际项目中，这里会调用真实的AI模型API</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&#x27;Translated &quot;<span class="subst">&#123;text&#125;</span>&quot; to <span class="subst">&#123;target_language&#125;</span>&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义MCP能力端点</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/mcp/translate&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">translate</span>():</span><br><span class="line">    data = request.json</span><br><span class="line">    text = data.get(<span class="string">&#x27;text&#x27;</span>)</span><br><span class="line">    target_language = data.get(<span class="string">&#x27;targetLanguage&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 参数验证</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text <span class="keyword">or</span> <span class="keyword">not</span> target_language:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Missing required parameters&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 调用模型能力</span></span><br><span class="line">    result = translate_text(text, target_language)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">        <span class="string">&#x27;success&#x27;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&#x27;result&#x27;</span>: result</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    port = <span class="number">3000</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;MCP Server running on port <span class="subst">&#123;port&#125;</span>&#x27;</span>)</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=port)</span><br></pre></td></tr></table></figure>
+
+<p>要启动这个服务，只需运行：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install flask</span><br><span class="line">python mcp-server.py</span><br></pre></td></tr></table></figure>
+
+<p>这个简单的MCP Server实现了一个翻译能力，客户端可以通过POST请求调用这个能力。</p>
+<h1 id="MCP-Client"><a href="#MCP-Client" class="headerlink" title="MCP Client"></a>MCP Client</h1><p>MCP Client是应用开发者用来调用MCP Server提供的模型能力的工具。它的主要职责包括：</p>
+<ol>
+<li><strong>发现能力</strong>：了解MCP Server提供了哪些能力及其接口定义。</li>
+<li><strong>构造请求</strong>：根据能力的接口定义，构造合法的请求参数。</li>
+<li><strong>发送请求</strong>：将请求发送给MCP Server。</li>
+<li><strong>处理响应</strong>：接收并处理来自MCP Server的响应结果。</li>
+</ol>
+<p>MCP Client可以是一个独立的SDK，也可以是应用代码中的一部分。</p>
+<h2 id="MCP-Client快速入门"><a href="#MCP-Client快速入门" class="headerlink" title="MCP Client快速入门"></a>MCP Client快速入门</h2><p>以下是一个简单的MCP Client实现示例（Python版本），用于调用上述MCP Server提供的翻译能力：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># mcp-client.py</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MCPClient</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, server_url</span>):</span><br><span class="line">        <span class="variable language_">self</span>.server_url = server_url</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 调用翻译能力</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">translate</span>(<span class="params">self, text, target_language</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response = requests.post(</span><br><span class="line">                <span class="string">f&#x27;<span class="subst">&#123;self.server_url&#125;</span>/mcp/translate&#x27;</span>,</span><br><span class="line">                json=&#123;</span><br><span class="line">                    <span class="string">&#x27;text&#x27;</span>: text,</span><br><span class="line">                    <span class="string">&#x27;targetLanguage&#x27;</span>: target_language</span><br><span class="line">                &#125;</span><br><span class="line">            )</span><br><span class="line">            response.raise_for_status()  <span class="comment"># 抛出HTTP错误</span></span><br><span class="line">            <span class="keyword">return</span> response.json()</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;Error calling MCP Server: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&#x27;</span>)</span><br><span class="line">            <span class="keyword">raise</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 创建MCP客户端</span></span><br><span class="line">    client = MCPClient(<span class="string">&#x27;http://localhost:3000&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 调用翻译能力</span></span><br><span class="line">        result = client.translate(<span class="string">&#x27;Hello, world!&#x27;</span>, <span class="string">&#x27;Chinese&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;Translation result:&#x27;</span>, result)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;Failed to translate: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
+
+<p>要运行这个客户端，需要先安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">pip install requests</span><br><span class="line">python mcp-client.py</span><br></pre></td></tr></table></figure>
+
+<p>这个简单的MCP Client展示了如何构造请求并调用MCP Server提供的翻译能力。</p>
+<h1 id="MCP协议的优势"><a href="#MCP协议的优势" class="headerlink" title="MCP协议的优势"></a>MCP协议的优势</h1><ol>
+<li><strong>标准化</strong>：提供统一的接口定义，使得不同的模型能力可以通过相同的方式被调用。</li>
+<li><strong>解耦</strong>：将模型实现和应用逻辑解耦，使得双方可以独立演进。</li>
+<li><strong>可扩展</strong>：新的模型能力可以很容易地添加到现有系统中，而不影响已有的应用。</li>
+<li><strong>易于使用</strong>：应用开发者无需了解复杂的模型细节，只需通过简单的接口调用即可使用模型能力。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>MCP协议为连接AI模型能力和应用提供了一种标准化的方式，它通过定义清晰的接口和通信协议，使得模型提供方和应用开发方能够更加高效地合作。通过MCP Server和MCP Client的实现，我们可以看到这种协议如何简化了模型能力的封装和调用过程。</p>
+<p>随着AI技术的不断发展，模型能力会变得越来越复杂和多样化，而MCP协议的价值也将越来越明显。它不仅可以降低开发成本，还可以促进AI能力的共享和重用，从而加速AI应用的创新和落地。 </p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>Lupin Lao
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/" title="什么是MCP协议">http://blog.kocdyun.top/2025/04/05/mcp/mcp-protocol/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/zh-CN" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/mcp/" rel="tag"># mcp</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2025/03/26/AIagent/dify_deployment/" rel="prev" title="Windows 11部署Dify-AI应用开发">
+                  <i class="fa fa-angle-left"></i> Windows 11部署Dify-AI应用开发
+                </a>
+            </div>
+            <div class="post-nav-item">
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">Lupin Lao</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+    <span title="站点总字数">34k</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">1:03</span>
+  </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/pisces/" rel="noopener" target="_blank">NexT.Pisces</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+
+
+
+
+
+</body>
+</html>

@@ -1,6 +1,73 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Windows 11部署Dify-AI应用开发</title>
+    <url>/2025/03/26/AIagent/dify_deployment/</url>
+    <content><![CDATA[<h1 id="什么是-Dify-？"><a href="#什么是-Dify-？" class="headerlink" title="什么是 Dify ？"></a>什么是 Dify ？</h1><p>Dify 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service）和 LLMOps 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。</p>
+<span id="more"></span>
+<hr>
+<p>由于 Dify 内置了构建 LLM 应用所需的关键技术栈，包括对数百个模型的支持、直观的 Prompt 编排界面、高质量的 RAG 引擎、稳健的 Agent 框架、灵活的流程编排，并同时提供了一套易用的界面和 API。这为开发者节省了许多重复造轮子的时间，使其可以专注在创新和业务需求上。</p>
+<p>下面我们开始本地部署Dify</p>
+<p><strong>前提条件（官方建议配置）</strong><br>安装 Dify 之前, 请确保你的机器已满足最低安装要求：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CPU &gt;= 2 Core</span><br><span class="line">RAM &gt;= 4 GiB</span><br></pre></td></tr></table></figure>
+
+<h1 id="Windows11-安装Docker和WSL"><a href="#Windows11-安装Docker和WSL" class="headerlink" title="Windows11 安装Docker和WSL"></a>Windows11 安装Docker和WSL</h1><h2 id="安装wsl"><a href="#安装wsl" class="headerlink" title="安装wsl"></a>安装wsl</h2><p>进入cmd或者powershell执行wsl –update，一般下载比较慢，可以从github (<a href="https://github.com/microsoft/WSL/releases%EF%BC%89%E4%B8%8B%E8%BD%BD%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%8C%E7%84%B6%E5%90%8E%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF">https://github.com/microsoft/WSL/releases）下载，如下图所示，然后安装即可</a><br><img src="/images/article_image/dify_Deployment_2.png" alt="Alt"></p>
+<h2 id="安装Docker-Desktop"><a href="#安装Docker-Desktop" class="headerlink" title="安装Docker Desktop"></a>安装Docker Desktop</h2><p>进入Docker的官方网站<a href="https://www.docker.com,点击下载amd64版本,如图1所示.然后安装即可./">https://www.docker.com，点击下载AMD64版本，如图1所示。然后安装即可。</a><br><img src="/images/article_image/dify_Deployment_3.png" alt="Alt"></p>
+<h1 id="安装Dify"><a href="#安装Dify" class="headerlink" title="安装Dify"></a>安装Dify</h1><h2 id="克隆-Dify-代码仓库"><a href="#克隆-Dify-代码仓库" class="headerlink" title="克隆 Dify 代码仓库"></a>克隆 Dify 代码仓库</h2><p>克隆 Dify 源代码至本地环境。我下载是最新的1.1.3<br><code>git clone https://github.com/langgenius/dify.git --branch 1.1.3 </code></p>
+<p><em><strong>如果本地没有安装git，可以直接到github下载压缩包到本地再解压</strong></em></p>
+<h2 id="启动-Dify"><a href="#启动-Dify" class="headerlink" title="启动 Dify"></a>启动 Dify</h2><h3 id="进入-Dify-源代码的-Docker-目录"><a href="#进入-Dify-源代码的-Docker-目录" class="headerlink" title="进入 Dify 源代码的 Docker 目录"></a>进入 Dify 源代码的 Docker 目录</h3><p><strong>你自己解压的路径</strong><br><code>cd D:\Software\dify-1.1.3\docker</code></p>
+<h3 id="复制环境配置文件"><a href="#复制环境配置文件" class="headerlink" title="复制环境配置文件"></a>复制环境配置文件</h3><p><code>cp .env.example .env</code></p>
+<p><em><strong>（填坑）注意</strong></em>：windows环境部署，需要更改.env文件的换行格式，可通过vscode打开，否则部署后，在访问localhost\install页面时会出现了internal server error报错，并且无法出现注册页面。.env文件更改（LF改为CRLF），保存文件即可，如下图所示：<br><img src="/images/article_image/dify_Deployment_4.png" alt="Alt"></p>
+<h3 id="部署Dify容器"><a href="#部署Dify容器" class="headerlink" title="部署Dify容器"></a>部署Dify容器</h3><ul>
+<li>打开docker desktop界面，添加国内镜像加速（推荐，否则下载会失败），添加后重启docker，如下图所示：<br><img src="/images/article_image/dify_Deployment_5.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_6.png" alt="Alt"></li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&quot;registry-mirror&quot;: [</span><br><span class="line">    &quot;https://registry.cn-shenzhen.aliyuncs.com&quot;</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>根据你系统上的 Docker Compose 版本，选择合适的命令来启动容器。你可以通过 $ docker compose version 命令检查版本，详细说明请参考 Docker 官方文档：<br>我安装的版本是 Docker Compose V2，所以使用以下命令：</li>
+</ul>
+<p><code>docker compose up -d</code><br>运行命令后，你应该会看到类似以下的输出，显示所有容器的状态：<br><img src="/images/article_image/dify_Deployment_7.png" alt="Alt"></p>
+<p>最后检查是否所有容器都正常运行：<br><code>docker compose ps</code><br><img src="/images/article_image/dify_Deployment_8.png" alt="Alt"></p>
+<h3 id="访问-Dify"><a href="#访问-Dify" class="headerlink" title="访问 Dify"></a>访问 Dify</h3><p>你可以先前往管理员初始化页面，设置管理员账户：</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 本地环境</span><br><span class="line">http://localhost/install</span><br><span class="line"></span><br><span class="line"># 服务器环境</span><br><span class="line">http://your_server_ip/install</span><br></pre></td></tr></table></figure>
+
+<h3 id="docker-compose-停止或者启动dify项目"><a href="#docker-compose-停止或者启动dify项目" class="headerlink" title="docker compose 停止或者启动dify项目"></a>docker compose 停止或者启动dify项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker compose stop</span><br><span class="line">docker compose start</span><br></pre></td></tr></table></figure>
+<p><img src="/images/article_image/dify_Deployment_9.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_10.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Dify</category>
+      </categories>
+      <tags>
+        <tag>Dify</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
+    <url>/2021/02/26/docker/jdk-docker/</url>
+    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
+<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
+<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
+<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
+<p>构建JDK基础镜像</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+
+<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
+]]></content>
+      <categories>
+        <category>Docker</category>
+      </categories>
+      <tags>
+        <tag>Docker</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>本地部署Ollama+DeepSeek-R1</title>
     <url>/2025/03/17/deepseek/ollama_deepseek_deployment/</url>
     <content><![CDATA[<h1 id="什么是-Ollama-？"><a href="#什么是-Ollama-？" class="headerlink" title="什么是 Ollama ？"></a>什么是 Ollama ？</h1><p>Ollama是一个专为在本地机器上便捷部署和运行大型语言模型（LLM）而设计的开源框架，它可以用简单的命令行快捷部署多种大模型，例如 DeepSeek、Qwen、Llama3 等等模型。</p>
@@ -54,47 +121,6 @@
       <tags>
         <tag>Ollama</tag>
         <tag>Deepseek</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Windows 11部署Dify-AI应用开发</title>
-    <url>/2025/03/26/AIagent/dify_deployment/</url>
-    <content><![CDATA[<h1 id="什么是-Dify-？"><a href="#什么是-Dify-？" class="headerlink" title="什么是 Dify ？"></a>什么是 Dify ？</h1><p>Dify 是一款开源的大语言模型(LLM) 应用开发平台。它融合了后端即服务（Backend as Service）和 LLMOps 的理念，使开发者可以快速搭建生产级的生成式 AI 应用。</p>
-<span id="more"></span>
-<hr>
-<p>由于 Dify 内置了构建 LLM 应用所需的关键技术栈，包括对数百个模型的支持、直观的 Prompt 编排界面、高质量的 RAG 引擎、稳健的 Agent 框架、灵活的流程编排，并同时提供了一套易用的界面和 API。这为开发者节省了许多重复造轮子的时间，使其可以专注在创新和业务需求上。</p>
-<p>下面我们开始本地部署Dify</p>
-<p><strong>前提条件（官方建议配置）</strong><br>安装 Dify 之前, 请确保你的机器已满足最低安装要求：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">CPU &gt;= 2 Core</span><br><span class="line">RAM &gt;= 4 GiB</span><br></pre></td></tr></table></figure>
-
-<h1 id="Windows11-安装Docker和WSL"><a href="#Windows11-安装Docker和WSL" class="headerlink" title="Windows11 安装Docker和WSL"></a>Windows11 安装Docker和WSL</h1><h2 id="安装wsl"><a href="#安装wsl" class="headerlink" title="安装wsl"></a>安装wsl</h2><p>进入cmd或者powershell执行wsl –update，一般下载比较慢，可以从github (<a href="https://github.com/microsoft/WSL/releases%EF%BC%89%E4%B8%8B%E8%BD%BD%EF%BC%8C%E5%A6%82%E4%B8%8B%E5%9B%BE%E6%89%80%E7%A4%BA%EF%BC%8C%E7%84%B6%E5%90%8E%E5%AE%89%E8%A3%85%E5%8D%B3%E5%8F%AF">https://github.com/microsoft/WSL/releases）下载，如下图所示，然后安装即可</a><br><img src="/images/article_image/dify_Deployment_2.png" alt="Alt"></p>
-<h2 id="安装Docker-Desktop"><a href="#安装Docker-Desktop" class="headerlink" title="安装Docker Desktop"></a>安装Docker Desktop</h2><p>进入Docker的官方网站<a href="https://www.docker.com,点击下载amd64版本,如图1所示.然后安装即可./">https://www.docker.com，点击下载AMD64版本，如图1所示。然后安装即可。</a><br><img src="/images/article_image/dify_Deployment_3.png" alt="Alt"></p>
-<h1 id="安装Dify"><a href="#安装Dify" class="headerlink" title="安装Dify"></a>安装Dify</h1><h2 id="克隆-Dify-代码仓库"><a href="#克隆-Dify-代码仓库" class="headerlink" title="克隆 Dify 代码仓库"></a>克隆 Dify 代码仓库</h2><p>克隆 Dify 源代码至本地环境。我下载是最新的1.1.3<br><code>git clone https://github.com/langgenius/dify.git --branch 1.1.3 </code></p>
-<p><em><strong>如果本地没有安装git，可以直接到github下载压缩包到本地再解压</strong></em></p>
-<h2 id="启动-Dify"><a href="#启动-Dify" class="headerlink" title="启动 Dify"></a>启动 Dify</h2><h3 id="进入-Dify-源代码的-Docker-目录"><a href="#进入-Dify-源代码的-Docker-目录" class="headerlink" title="进入 Dify 源代码的 Docker 目录"></a>进入 Dify 源代码的 Docker 目录</h3><p><strong>你自己解压的路径</strong><br><code>cd D:\Software\dify-1.1.3\docker</code></p>
-<h3 id="复制环境配置文件"><a href="#复制环境配置文件" class="headerlink" title="复制环境配置文件"></a>复制环境配置文件</h3><p><code>cp .env.example .env</code></p>
-<p><em><strong>（填坑）注意</strong></em>：windows环境部署，需要更改.env文件的换行格式，可通过vscode打开，否则部署后，在访问localhost\install页面时会出现了internal server error报错，并且无法出现注册页面。.env文件更改（LF改为CRLF），保存文件即可，如下图所示：<br><img src="/images/article_image/dify_Deployment_4.png" alt="Alt"></p>
-<h3 id="部署Dify容器"><a href="#部署Dify容器" class="headerlink" title="部署Dify容器"></a>部署Dify容器</h3><ul>
-<li>打开docker desktop界面，添加国内镜像加速（推荐，否则下载会失败），添加后重启docker，如下图所示：<br><img src="/images/article_image/dify_Deployment_5.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_6.png" alt="Alt"></li>
-</ul>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">&quot;registry-mirror&quot;: [</span><br><span class="line">    &quot;https://registry.cn-shenzhen.aliyuncs.com&quot;</span><br><span class="line">  ]</span><br></pre></td></tr></table></figure>
-
-<ul>
-<li>根据你系统上的 Docker Compose 版本，选择合适的命令来启动容器。你可以通过 $ docker compose version 命令检查版本，详细说明请参考 Docker 官方文档：<br>我安装的版本是 Docker Compose V2，所以使用以下命令：</li>
-</ul>
-<p><code>docker compose up -d</code><br>运行命令后，你应该会看到类似以下的输出，显示所有容器的状态：<br><img src="/images/article_image/dify_Deployment_7.png" alt="Alt"></p>
-<p>最后检查是否所有容器都正常运行：<br><code>docker compose ps</code><br><img src="/images/article_image/dify_Deployment_8.png" alt="Alt"></p>
-<h3 id="访问-Dify"><a href="#访问-Dify" class="headerlink" title="访问 Dify"></a>访问 Dify</h3><p>你可以先前往管理员初始化页面，设置管理员账户：</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 本地环境</span><br><span class="line">http://localhost/install</span><br><span class="line"></span><br><span class="line"># 服务器环境</span><br><span class="line">http://your_server_ip/install</span><br></pre></td></tr></table></figure>
-
-<h3 id="docker-compose-停止或者启动dify项目"><a href="#docker-compose-停止或者启动dify项目" class="headerlink" title="docker compose 停止或者启动dify项目"></a>docker compose 停止或者启动dify项目</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker compose stop</span><br><span class="line">docker compose start</span><br></pre></td></tr></table></figure>
-<p><img src="/images/article_image/dify_Deployment_9.png" alt="Alt"><br><img src="/images/article_image/dify_Deployment_10.png" alt="Alt"></p>
-]]></content>
-      <categories>
-        <category>Dify</category>
-      </categories>
-      <tags>
-        <tag>Dify</tag>
       </tags>
   </entry>
   <entry>
@@ -193,34 +219,118 @@
         <category>MongoDB</category>
       </categories>
       <tags>
-        <tag>MongoDB</tag>
         <tag>Docker</tag>
+        <tag>MongoDB</tag>
       </tags>
   </entry>
   <entry>
-    <title>华为云鲲鹏服务器测试使用-JDK基础镜像构建</title>
-    <url>/2021/02/26/docker/jdk-docker/</url>
-    <content><![CDATA[<p>近期的大数据项目需要使用ARM环境的服务器；为啥选择华为云呢，因为华为云鲲鹏服务器，具备多核高并发特点，非常适合AI、大数据、HPC、云手机&#x2F;云游戏等场景，满足了我们的需求，所以选择了华为云鲲鹏服务器（支持国产）。</p>
+    <title>Dokcer 部署RabbitMQ集群-镜像模式（实战）</title>
+    <url>/2021/03/01/datebases/rabbitmq-mirror/</url>
+    <content><![CDATA[<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。</p>
 <span id="more"></span>
 
 <hr>
-<h1 id="制作JDK基础镜像"><a href="#制作JDK基础镜像" class="headerlink" title="制作JDK基础镜像"></a>制作JDK基础镜像</h1><h2 id="下载jdk软件"><a href="#下载jdk软件" class="headerlink" title="下载jdk软件"></a>下载jdk软件</h2><p>官网地址：<a href="https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html">https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html</a><br><img src="/images/article_image/docker_jdk8_1.png" alt="Alt"><br>本次选择的版本是ARM64版的软件包（jdk-8u271-linux-aarch64.tar.gz）<br>注意：下载可能需要注册账号</p>
-<h2 id="下载alpine镜像"><a href="#下载alpine镜像" class="headerlink" title="下载alpine镜像"></a>下载alpine镜像</h2><p>下载apline基础镜像，在dokcer hub上查找适合的镜像即可；需要注意的是，jdk在alpine中运行需要安装glibc，故本次选择的版本：cyphernode&#x2F;alpine-glibc-base:arm64-v3.11.0_2.29-0</p>
-<figure class="highlight csharp"><table><tr><td class="code"><pre><span class="line">dokcer pull cyphernode/alpine-glibc-<span class="keyword">base</span>:arm64-v3<span class="number">.11</span><span class="number">.0</span>_2<span class="number">.29</span><span class="number">-0</span></span><br></pre></td></tr></table></figure>
+<p>RabbitMQ部署模式大概分为以下三种:</p>
+<ol>
+<li>单一模式。</li>
+<li>普通模式(默认的集群模式)。</li>
+<li>镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbitMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。</li>
+</ol>
+<h1 id="RabbitMQ模式详解"><a href="#RabbitMQ模式详解" class="headerlink" title="RabbitMQ模式详解"></a>RabbitMQ模式详解</h1><p>abbitmq普通集群模式，是将交换机、绑定、队列的元数据复制到集群里的任何一个节点，但队列内容只存在于特定的节点中，客户端通过连接集群中任意一个节点，即可以生产和消费集群中的任何队列内容（因为每个节点都有集群中所有队列的元数据信息，如果队列内容不在本节点，则本节点会从远程节点获取内容，然后提供给消费者消费）。<br>从该模式不难看出，普通集群可以让不同的繁忙队列从属于不同的节点，这样可以减轻单节点的压力，提升吞吐量，但是普通集群不能保证队列的高可用性，因为一旦队列所在节点宕机直接导致该队列无法使用，只能等待重启，所以要想在队列节点宕机或故障也能正常使用，就要复制队列内容到集群里的每个节点，需要创建镜像队列。<br>rabbitmq镜像集群依赖于普通集群，所以需要先搭建rabbitmq普通集群。</p>
+<h1 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h1><p>要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用，本次实践部署rabbitmq采用的版本（rabbitmq:3.8.7-management）。</p>
+<h2 id="主机列表"><a href="#主机列表" class="headerlink" title="主机列表"></a>主机列表</h2><table>
+<thead>
+<tr>
+<th>主机</th>
+<th>节点模式</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>192.168.1.32</td>
+<td>磁盘节点</td>
+</tr>
+<tr>
+<td>192.168.1.33</td>
+<td>内存节点</td>
+</tr>
+<tr>
+<td>192.168.1.35</td>
+<td>内存节点</td>
+</tr>
+</tbody></table>
+<h1 id="部署RabbitMQ"><a href="#部署RabbitMQ" class="headerlink" title="部署RabbitMQ"></a>部署RabbitMQ</h1><h2 id="创建持久数据目录"><a href="#创建持久数据目录" class="headerlink" title="创建持久数据目录"></a>创建持久数据目录</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir /data/rabbitmq -p   //三台主机均执行</span><br></pre></td></tr></table></figure>
+<h2 id="host配置-rabbitmq集群需要解析主机名"><a href="#host配置-rabbitmq集群需要解析主机名" class="headerlink" title="host配置(rabbitmq集群需要解析主机名)"></a>host配置(rabbitmq集群需要解析主机名)</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /data/rabbitmq</span><br><span class="line">vim hosts</span><br><span class="line"># hosts 内容</span><br><span class="line">192.168.1.32 rabbit1</span><br><span class="line">192.168.1.33 rabbit2</span><br><span class="line">192.168.1.35 rabbit3</span><br></pre></td></tr></table></figure>
 
-<h2 id="Dockerfile"><a href="#Dockerfile" class="headerlink" title="Dockerfile"></a>Dockerfile</h2><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment">#1.指定基础镜像，并且必须是第一条指令</span></span><br><span class="line">FROM cyphernode/alpine-glibc-base:arm64-v3.11.0_2.29-0</span><br><span class="line"></span><br><span class="line"><span class="comment">#2.指明该镜像的作者和其电子邮件</span></span><br><span class="line">MAINTAINER lshcc@163.com</span><br><span class="line"></span><br><span class="line"><span class="comment">#3.设置时间</span></span><br><span class="line">RUN <span class="built_in">ln</span> -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime &amp;&amp; <span class="built_in">echo</span> <span class="string">&#x27;Asia/Shanghai&#x27;</span> &gt;/etc/timezone</span><br><span class="line"></span><br><span class="line"><span class="comment">#4.将一些安装包复制到镜像中，语法：ADD/COPY &lt;src&gt;... &lt;dest&gt;</span></span><br><span class="line"><span class="comment">## ADD与COPY的区别：ADD复制并解压，COPY仅复制</span></span><br><span class="line">ADD jdk-8u271-linux-aarch64.tar.gz /usr/local/</span><br><span class="line"></span><br><span class="line"><span class="comment">#5.配置环境变量</span></span><br><span class="line">ENV JAVA_HOME=/usr/local/jdk1.8.0_271</span><br><span class="line">ENV JRE_HOME=<span class="variable">$&#123;JAVA_HOME&#125;</span>/jre</span><br><span class="line">ENV CLASS_PATH=.:<span class="variable">$JAVA_HOME</span>/lib/dt.jar:<span class="variable">$JAVA_HOME</span>/lib/tools.jar:<span class="variable">$JRE_HOME</span>/lib</span><br><span class="line">ENV PATH=<span class="variable">$PATH</span>:<span class="variable">$&#123;JAVA_HOME&#125;</span>/bin:<span class="variable">$JRE_HOME</span>/bin</span><br></pre></td></tr></table></figure>
-<h2 id="运行Dockerfile"><a href="#运行Dockerfile" class="headerlink" title="运行Dockerfile"></a>运行Dockerfile</h2><p>新建目录，将Dockerfile和JDK软件包放在同一目录下</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">[root@test-0002 pkg]# <span class="built_in">ls</span></span><br><span class="line">Dockerfile  jdk-8u271-linux-aarch64.tar.gz</span><br><span class="line">[root@test-0002 pkg]#</span><br></pre></td></tr></table></figure>
-<p>构建JDK基础镜像</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 镜像名称自定义</span></span><br><span class="line">docker build -t jdk8-arm64:v1 .</span><br></pre></td></tr></table></figure>
+<h2 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit1 \</span><br><span class="line">  --name rabbit1  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit2 \</span><br><span class="line">  --name rabbit2  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit3 \</span><br><span class="line">  --name rabbit3  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line"></span><br><span class="line">注意：hostname 不要重复</span><br></pre></td></tr></table></figure>
 
-<h1 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h1><p>运行docker镜像，查看java版本<br><img src="/images/article_image/docker_jdk8_2.png" alt="Alt"></p>
+<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-d</span><br><span class="line">#容器后台运行</span><br><span class="line">--restart=always</span><br><span class="line"># 容器重启策略, always 在容器退出时总是重启容器</span><br><span class="line">--net host</span><br><span class="line">#容器和宿主机共用网络(注意端口冲突)</span><br><span class="line">--hostname rabbit1</span><br><span class="line">#容器的主机名为 rabbit1，容器内部的hostname</span><br><span class="line">--name rabbit1</span><br><span class="line">#容器名为rabbit1，在宿主机上运行“docker ps”命令时显示的名称</span><br><span class="line">-v /data/rabbitmq:/var/lib/rabbitmq</span><br><span class="line">#将宿主机目录/data/rabbitmq挂载到容器的/var/lib/rabbitmq目录</span><br><span class="line">-v /data/rabbitmq/hosts:/etc/hosts</span><br><span class="line">#将宿主机目录/data/rabbitmq/hosts文件挂载到容器的/etc/hosts文件</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=user01</span><br><span class="line">#设置rabbitmq默认用户为user01</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=password01</span><br><span class="line">#设置rabbitmq默认密码为password01</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie&#x27;</span><br><span class="line">#设置rabbitmq的cookie为“secret cookie”，可以自定义为其他文本，三个容器保持一致即可。</span><br><span class="line">rabbitmq:3.8.7-management</span><br><span class="line">#使用rabbitmq:3.8.7-management这个镜像</span><br></pre></td></tr></table></figure>
+
+<p><em><strong>三台机器都执行上面的命令,hostname和容器name需要修改</strong></em></p>
+<h2 id="将节点2-3加入集群"><a href="#将节点2-3加入集群" class="headerlink" title="将节点2,3加入集群"></a>将节点2,3加入集群</h2><p>在rabbit2机器进入容器的命令行</p>
+<pre><code>docker exec -it rabbit2 /bin/bash
+加入集群
+rabbitmqctl stop_app
+rabbitmqctl join_cluster rabbit@rabbit1
+rabbitmqctl join_cluster rabbit@rabbit1 --ram  //表示该节点为内存节点，默认为磁盘节点。
+rabbitmqctl start_app
+rabbit3执行相同的命令
+
+查询集群状态
+rabbitmqctl cluster_status
+</code></pre>
+<h3 id="特别说明："><a href="#特别说明：" class="headerlink" title="特别说明："></a>特别说明：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在上述部署已完成的情况下更改节点模式(硬盘模式-disc、内存模式-ram)</span><br><span class="line"># 更改节点: rabbit@rabbit2为硬盘模式,操作如下：</span><br><span class="line"># 进入任意容器内</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 stop_app</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 change_cluster_node_type disc</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 start_app</span><br></pre></td></tr></table></figure>
+
+<h2 id="配置镜像集群策略"><a href="#配置镜像集群策略" class="headerlink" title="配置镜像集群策略"></a>配置镜像集群策略</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">新添加用户</span><br><span class="line">rabbitmqctl list_users     //查看用户列表</span><br><span class="line">rabbitmqctl add_user admin 123456   //新增用户、密码</span><br><span class="line">rabbitmqctl set_user_tags admin administrator  // 设置admin用户标记，administrator表示最高权限</span><br><span class="line">rabbitmqctl set_permissions -p &quot;/&quot; admin &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;   //设置权限</span><br></pre></td></tr></table></figure>
+
+<h3 id="开启镜像集群模式"><a href="#开启镜像集群模式" class="headerlink" title="开启镜像集群模式"></a>开启镜像集群模式</h3><p>搭建镜像集群是在web控制台完成的，主要操作就是在Admin界面添加一个Policy<br>添加策略：登录rabbitmq管理页面 ——&gt; Admin ——&gt; Policies ——&gt; Add &#x2F; update a policy，填写对应的镜像策略。<br><img src="/images/article_image/rabbitmq_mirror_1.png" alt="Alt"><br><img src="/images/article_image/rabbitmq_mirror_2.png" alt="Alt"></p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Policy参数含义</span><br><span class="line">pattern: 队列名字的通配符 或者 ^ 匹配符，只有一个^代表匹配所有</span><br><span class="line">ha-mode：镜像队列提供了三种模式：</span><br><span class="line">        all：全部的节点队列都做镜像；</span><br><span class="line">        exactly：指定镜像队列的节点最高镜像数量；</span><br><span class="line">        nodes：只为指定具体节点配置镜像队列；</span><br><span class="line">ha-sync-mode ：节点之前的同步模式。有自动和手动两种，默认是手动，这里设置为自动。</span><br></pre></td></tr></table></figure>
+
+<p>设置完成并添加了这个策略后，新建的和已存在的队列默认会支持此策略。</p>
+<p>出现如下图所示，表示配置完成<br><img src="/images/article_image/rabbitmq_mirror_3.png" alt="Alt"><br><em><strong>到此，镜像集群部署工作完成。</strong></em></p>
+<h1 id="RabbitMQ监控"><a href="#RabbitMQ监控" class="headerlink" title="RabbitMQ监控"></a>RabbitMQ监控</h1><p>使用两种流行的工具介绍RabbitMQ监视： Prometheus，一个监视工具包；和Grafana，一个度量可视化系统。<br>从3.8.0版开始，RabbitMQ附带了内置的Prometheus＆Grafana支持。<br>Rabbitmq_prometheus插件随附了对Prometheus度量标准收集器的支持。该插件以Prometheus文本格式在专用TCP端口上公开所有RabbitMQ指标。<br>这些度量标准提供了对RabbitMQ节点状态和运行时的深入了解。他们使有关RabbitMQ的行为，使用它的应用程序以及各种基础结构元素的推理变得更加明智。</p>
+<h2 id="启用rabbitmq-prometheus"><a href="#启用rabbitmq-prometheus" class="headerlink" title="启用rabbitmq_prometheus"></a>启用rabbitmq_prometheus</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">在所有节点上启用rabbitmq_prometheus 插件</span><br><span class="line">rabbitmq-plugins enable rabbitmq_prometheus</span><br></pre></td></tr></table></figure>
+
+<p>获取指标，如下所示有监控指标出现，即表示监控插件开启</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -s localhost:15692/metrics | head -n 3</span><br><span class="line"># TYPE erlang_mnesia_held_locks gauge</span><br><span class="line"># HELP erlang_mnesia_held_locks Number of held locks.</span><br><span class="line">erlang_mnesia_held_locks 0</span><br></pre></td></tr></table></figure>
 ]]></content>
       <categories>
-        <category>Docker</category>
+        <category>数据库</category>
+        <category>RabbitMQ</category>
       </categories>
       <tags>
         <tag>Docker</tag>
+        <tag>rabbitmq</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>etcd数据备份与恢复</title>
+    <url>/2021/02/28/kubernetes/etcd_backup/</url>
+    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
+<span id="more"></span>
+
+<hr>
+<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
+
+<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
+
+<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
+
+<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
+
+<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
+
+<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>kubernetes</category>
+        <category>etcd</category>
+      </categories>
+      <tags>
+        <tag>kubernetes</tag>
       </tags>
   </entry>
   <entry>
@@ -329,113 +439,66 @@
       </tags>
   </entry>
   <entry>
-    <title>etcd数据备份与恢复</title>
-    <url>/2021/02/28/kubernetes/etcd_backup/</url>
-    <content><![CDATA[<p>对 Etcd 数据进行备份及恢复，Etcd官方也提供了备份的文档，你有兴趣可以阅读一下。这里总结了一些实际操作，以便你后续可以借鉴并进行手动的备份和恢复。命令行里面的一些证书路径以及 endpoint 地址需要根据自己的集群参数进行更改</p>
+    <title>什么是MCP协议</title>
+    <url>/2025/04/05/mcp/mcp-protocol/</url>
+    <content><![CDATA[<h1 id="什么是MCP协议？"><a href="#什么是MCP协议？" class="headerlink" title="什么是MCP协议？"></a>什么是MCP协议？</h1><p>MCP（Model Capability Protocol）是一种用于连接大模型能力和应用的标准协议。它提供了一种统一的方式来封装和暴露各种AI模型能力，使开发者可以更加便捷地调用这些能力，而无需关心底层模型的具体实现细节。</p>
 <span id="more"></span>
-
 <hr>
-<h1 id="数据备份"><a href="#数据备份" class="headerlink" title="数据备份"></a><a href="#%E6%95%B0%E6%8D%AE%E5%A4%87%E4%BB%BD" title="数据备份"></a>数据备份</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \</span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \</span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \</span><br><span class="line">snapshot save ./new.snapshot.db</span><br></pre></td></tr></table></figure>
-
-<h1 id="查看-etcd-集群的节点"><a href="#查看-etcd-集群的节点" class="headerlink" title="查看 etcd 集群的节点"></a><a href="#%E6%9F%A5%E7%9C%8B-etcd-%E9%9B%86%E7%BE%A4%E7%9A%84%E8%8A%82%E7%82%B9" title="查看 etcd 集群的节点"></a>查看 etcd 集群的节点</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">ETCDCTL_API=3 etcdctl --endpoints=https://127.0.0.1:2379 \ </span><br><span class="line">--cacert=/etc/kubernetes/pki/etcd/ca.crt \ </span><br><span class="line">--cert=/etc/kubernetes/pki/etcd/peer.crt \ </span><br><span class="line">--key=/etc/kubernetes/pki/etcd/peer.key \</span><br><span class="line">member list</span><br></pre></td></tr></table></figure>
-
-<h1 id="停止所有节点上的-etcd！（注意是所有！！）"><a href="#停止所有节点上的-etcd！（注意是所有！！）" class="headerlink" title="停止所有节点上的 etcd！（注意是所有！！）"></a><a href="#%E5%81%9C%E6%AD%A2%E6%89%80%E6%9C%89%E8%8A%82%E7%82%B9%E4%B8%8A%E7%9A%84-etcd%EF%BC%81%EF%BC%88%E6%B3%A8%E6%84%8F%E6%98%AF%E6%89%80%E6%9C%89%EF%BC%81%EF%BC%81%EF%BC%89" title="停止所有节点上的 etcd！（注意是所有！！）"></a>停止所有节点上的 etcd！（注意是所有！！）</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 如果是 static pod，可以听过如下的命令进行 stop</span><br><span class="line">## 如果是 systemd 管理的，可以通过 systemctl stop etcd</span><br><span class="line">mv /etc/kubernetes/manifests/etcd.yaml /etc/kubernetes/</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据清理"><a href="#数据清理" class="headerlink" title="数据清理"></a><a href="#%E6%95%B0%E6%8D%AE%E6%B8%85%E7%90%86" title="数据清理"></a>数据清理</h1><p>依次在每个节点上，移除 etcd 数据</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">rm -rf /var/lib/etcd</span><br></pre></td></tr></table></figure>
-
-<h1 id="数据恢复"><a href="#数据恢复" class="headerlink" title="数据恢复"></a><a href="#%E6%95%B0%E6%8D%AE%E6%81%A2%E5%A4%8D" title="数据恢复"></a>数据恢复</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，恢复 etcd 旧数据</span><br><span class="line">## 里面的 name，initial-advertise-peer-urls，initial-cluster=controlplane</span><br><span class="line">## 等参数，可以从 etcd pod 的 yaml 文件中获取到。</span><br><span class="line">ETCDCTL_API=3 etcdctl snapshot restore ./old.snapshot.db \</span><br><span class="line">--data-dir=/var/lib/etcd \</span><br><span class="line">--name=controlplane \</span><br><span class="line">--initial-advertise-peer-urls=https://172.17.0.18:2380 \</span><br><span class="line">--initial-cluster=controlplane=https://172.17.0.18:2380</span><br></pre></td></tr></table></figure>
-
-<h1 id="恢复-etcd-服务"><a href="#恢复-etcd-服务" class="headerlink" title="恢复 etcd 服务"></a><a href="#%E6%81%A2%E5%A4%8D-etcd-%E6%9C%8D%E5%8A%A1" title="恢复 etcd 服务"></a>恢复 etcd 服务</h1><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">## 依次在每个节点上，拉起 etcd 服务</span><br><span class="line">mv /etc/kubernetes/etcd.yaml /etc/kubernetes/manifests/</span><br><span class="line">systemctl restart kubelet</span><br></pre></td></tr></table></figure>
-
-<p>上述这些备份，都需要手动运行命令行进行操作。如果你的 Etcd 集群是运行在 Kubernetes 集群中的，你可以通过以下的定时 Job (CronJob) 来帮你自动化、周期性（如下的 YAML 文件中会每分钟对 Etcd 进行一次备份）地备份 Etcd 的数据。</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">apiVersion: batch/v1beta1</span><br><span class="line">kind: CronJob</span><br><span class="line">metadata:</span><br><span class="line">  name: backup</span><br><span class="line">  namespace: kube-system</span><br><span class="line">spec:</span><br><span class="line">  # activeDeadlineSeconds: 100</span><br><span class="line">  schedule: &quot;*/1 * * * *&quot;</span><br><span class="line">  jobTemplate:</span><br><span class="line">    spec:</span><br><span class="line">      template:</span><br><span class="line">        spec:</span><br><span class="line">          containers:</span><br><span class="line">          - name: backup</span><br><span class="line">            image: k8s.gcr.io/etcd:3.2.24</span><br><span class="line">            env:</span><br><span class="line">            - name: ETCDCTL_API</span><br><span class="line">              value: &quot;3&quot;</span><br><span class="line">            command: [&quot;/bin/sh&quot;]</span><br><span class="line">            args: [&quot;-c&quot;, &quot;etcdctl --endpoints=https://127.0.0.1:2379 --cacert=/etc/kubernetes/pki/etcd/ca.crt --cert=/etc/kubernetes/pki/etcd/healthcheck-client.crt --key=/etc/kubernetes/pki/etcd/healthcheck-client.key snapshot save /backup/etcd-snapshot-$(date +%Y-%m-%d_%H:%M:%S_%Z).db&quot;]</span><br><span class="line">            volumeMounts:</span><br><span class="line">            - mountPath: /etc/kubernetes/pki/etcd</span><br><span class="line">              name: etcd-certs</span><br><span class="line">              readOnly: true</span><br><span class="line">            - mountPath: /backup</span><br><span class="line">              name: backup</span><br><span class="line">          restartPolicy: OnFailure</span><br><span class="line">          hostNetwork: true</span><br><span class="line">          volumes:</span><br><span class="line">          - name: etcd-certs</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /etc/kubernetes/pki/etcd</span><br><span class="line">              type: DirectoryOrCreate</span><br><span class="line">          - name: backup</span><br><span class="line">            hostPath:</span><br><span class="line">              path: /data/backup</span><br><span class="line">              type: DirectoryOrCreate</span><br></pre></td></tr></table></figure>
-]]></content>
-      <categories>
-        <category>kubernetes</category>
-        <category>etcd</category>
-      </categories>
-      <tags>
-        <tag>kubernetes</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>Dokcer 部署RabbitMQ集群-镜像模式（实战）</title>
-    <url>/2021/03/01/datebases/rabbitmq-mirror/</url>
-    <content><![CDATA[<h1 id="RabbitMQ简介"><a href="#RabbitMQ简介" class="headerlink" title="RabbitMQ简介"></a>RabbitMQ简介</h1><p>RabbitMQ是一个开源的消息中间件，它实现了高级消息队列协议(AMQP)，支持多种语言，如Java、Python、Ruby、PHP、C#、JavaScript等。</p>
-<span id="more"></span>
-
-<hr>
-<p>RabbitMQ部署模式大概分为以下三种:</p>
+<p>MCP协议的设计理念是将模型能力标准化、结构化，并通过简单的接口提供给应用开发者。这种设计使得模型提供方和应用开发方能够各自专注于自己的领域，大大提高了开发效率和系统的可扩展性。</p>
+<h1 id="MCP架构"><a href="#MCP架构" class="headerlink" title="MCP架构"></a>MCP架构</h1><p>MCP协议的核心架构包含以下几个关键组件：</p>
 <ol>
-<li>单一模式。</li>
-<li>普通模式(默认的集群模式)。</li>
-<li>镜像模式(把需要的队列做成镜像队列，存在于多个节点，属于RabbitMQ的HA方案，在对业务可靠性要求较高的场合中比较适用)。</li>
+<li><strong>MCP Server</strong>：模型能力的提供方，负责封装和暴露底层模型的能力。</li>
+<li><strong>MCP Client</strong>：应用开发方，通过调用MCP Server提供的接口来使用模型能力。</li>
+<li><strong>能力描述语言</strong>：用于描述模型能力的标准化语言，包括输入参数、输出格式等。</li>
+<li><strong>通信协议</strong>：定义了客户端和服务端之间的通信方式和数据格式。</li>
 </ol>
-<h1 id="RabbitMQ模式详解"><a href="#RabbitMQ模式详解" class="headerlink" title="RabbitMQ模式详解"></a>RabbitMQ模式详解</h1><p>abbitmq普通集群模式，是将交换机、绑定、队列的元数据复制到集群里的任何一个节点，但队列内容只存在于特定的节点中，客户端通过连接集群中任意一个节点，即可以生产和消费集群中的任何队列内容（因为每个节点都有集群中所有队列的元数据信息，如果队列内容不在本节点，则本节点会从远程节点获取内容，然后提供给消费者消费）。<br>从该模式不难看出，普通集群可以让不同的繁忙队列从属于不同的节点，这样可以减轻单节点的压力，提升吞吐量，但是普通集群不能保证队列的高可用性，因为一旦队列所在节点宕机直接导致该队列无法使用，只能等待重启，所以要想在队列节点宕机或故障也能正常使用，就要复制队列内容到集群里的每个节点，需要创建镜像队列。<br>rabbitmq镜像集群依赖于普通集群，所以需要先搭建rabbitmq普通集群。</p>
-<h1 id="环境说明"><a href="#环境说明" class="headerlink" title="环境说明"></a>环境说明</h1><p>要实现镜像模式，需要先搭建一个普通集群模式，在这个模式的基础上再配置镜像模式以实现高可用，本次实践部署rabbitmq采用的版本（rabbitmq:3.8.7-management）。</p>
-<h2 id="主机列表"><a href="#主机列表" class="headerlink" title="主机列表"></a>主机列表</h2><table>
-<thead>
-<tr>
-<th>主机</th>
-<th>节点模式</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>192.168.1.32</td>
-<td>磁盘节点</td>
-</tr>
-<tr>
-<td>192.168.1.33</td>
-<td>内存节点</td>
-</tr>
-<tr>
-<td>192.168.1.35</td>
-<td>内存节点</td>
-</tr>
-</tbody></table>
-<h1 id="部署RabbitMQ"><a href="#部署RabbitMQ" class="headerlink" title="部署RabbitMQ"></a>部署RabbitMQ</h1><h2 id="创建持久数据目录"><a href="#创建持久数据目录" class="headerlink" title="创建持久数据目录"></a>创建持久数据目录</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">mkdir /data/rabbitmq -p   //三台主机均执行</span><br></pre></td></tr></table></figure>
-<h2 id="host配置-rabbitmq集群需要解析主机名"><a href="#host配置-rabbitmq集群需要解析主机名" class="headerlink" title="host配置(rabbitmq集群需要解析主机名)"></a>host配置(rabbitmq集群需要解析主机名)</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">cd /data/rabbitmq</span><br><span class="line">vim hosts</span><br><span class="line"># hosts 内容</span><br><span class="line">192.168.1.32 rabbit1</span><br><span class="line">192.168.1.33 rabbit2</span><br><span class="line">192.168.1.35 rabbit3</span><br></pre></td></tr></table></figure>
+<p>整个架构形成了一个清晰的能力提供和消费的闭环：模型提供方将其能力通过MCP Server暴露出来，应用开发方则通过MCP Client来调用这些能力，从而实现复杂的应用功能。</p>
+<h2 id="MCP协议架构图"><a href="#MCP协议架构图" class="headerlink" title="MCP协议架构图"></a>MCP协议架构图</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">+------------------------+     +-------------------------+</span><br><span class="line">|    应用开发方          |     |     模型提供方          |</span><br><span class="line">|                        |     |                         |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  |   MCP Client     |  |     |  |    MCP Server     |  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|         |              |     |          |              |</span><br><span class="line">|         | 能力调用请求  |     |          | 模型能力封装  |</span><br><span class="line">|         v              |     |          v              |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  |   业务应用逻辑   |  |     |  |   AI底层模型实现   |  |</span><br><span class="line">|  |                  |  |     |  |                   |  |</span><br><span class="line">|  +------------------+  |     |  +-------------------+  |</span><br><span class="line">|                        |     |                         |</span><br><span class="line">+------------------------+     +-------------------------+</span><br><span class="line">           |                               ^</span><br><span class="line">           |                               |</span><br><span class="line">           +---------------+---------------+</span><br><span class="line">                           |</span><br><span class="line">                  +------------------+</span><br><span class="line">                  |                  |</span><br><span class="line">                  |   MCP通信协议    |</span><br><span class="line">                  |                  |</span><br><span class="line">                  +------------------+</span><br><span class="line">                  |                  |</span><br><span class="line">                  |  能力描述语言    |</span><br><span class="line">                  |                  |</span><br><span class="line">                  +------------------+</span><br></pre></td></tr></table></figure>
 
-<h2 id="创建容器"><a href="#创建容器" class="headerlink" title="创建容器"></a>创建容器</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit1 \</span><br><span class="line">  --name rabbit1  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit2 \</span><br><span class="line">  --name rabbit2  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line">  </span><br><span class="line">  docker run -d --restart=always \</span><br><span class="line">  --net host \</span><br><span class="line">  --hostname rabbit3 \</span><br><span class="line">  --name rabbit3  \</span><br><span class="line">  -v /data/rabbitmq:/var/lib/rabbitmq \</span><br><span class="line">  -v /data/rabbitmq/hosts:/etc/hosts \</span><br><span class="line">  -e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie here&#x27; \</span><br><span class="line">  rabbitmq:3.8.7-management</span><br><span class="line"></span><br><span class="line">注意：hostname 不要重复</span><br></pre></td></tr></table></figure>
+<h1 id="MCP-Server"><a href="#MCP-Server" class="headerlink" title="MCP Server"></a>MCP Server</h1><p>MCP Server是整个MCP协议中的核心组件，它承担着模型能力提供者的角色。其主要职责包括：</p>
+<ol>
+<li><strong>能力封装</strong>：将底层模型的复杂接口转换为标准化的MCP接口。</li>
+<li><strong>接口暴露</strong>：提供RESTful API或其他形式的接口，供MCP Client调用。</li>
+<li><strong>请求处理</strong>：处理来自客户端的请求，包括参数验证、模型调用等。</li>
+<li><strong>结果返回</strong>：将模型处理的结果按照约定的格式返回给客户端。</li>
+</ol>
+<p>MCP Server的实现通常是一个轻量级的服务，它可以独立部署，也可以作为一个服务集成到现有的系统中。</p>
+<h2 id="MCP-Server快速入门"><a href="#MCP-Server快速入门" class="headerlink" title="MCP Server快速入门"></a>MCP Server快速入门</h2><p>下面是一个简单的MCP Server实现示例（Python版本）：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># mcp-server.py</span></span><br><span class="line"><span class="keyword">from</span> flask <span class="keyword">import</span> Flask, request, jsonify</span><br><span class="line"></span><br><span class="line">app = Flask(__name__)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 模拟一个AI模型能力</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">translate_text</span>(<span class="params">text, target_language</span>):</span><br><span class="line">    <span class="comment"># 实际项目中，这里会调用真实的AI模型API</span></span><br><span class="line">    <span class="keyword">return</span> <span class="string">f&#x27;Translated &quot;<span class="subst">&#123;text&#125;</span>&quot; to <span class="subst">&#123;target_language&#125;</span>&#x27;</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 定义MCP能力端点</span></span><br><span class="line"><span class="meta">@app.route(<span class="params"><span class="string">&#x27;/mcp/translate&#x27;</span>, methods=[<span class="string">&#x27;POST&#x27;</span>]</span>)</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">translate</span>():</span><br><span class="line">    data = request.json</span><br><span class="line">    text = data.get(<span class="string">&#x27;text&#x27;</span>)</span><br><span class="line">    target_language = data.get(<span class="string">&#x27;targetLanguage&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 参数验证</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> text <span class="keyword">or</span> <span class="keyword">not</span> target_language:</span><br><span class="line">        <span class="keyword">return</span> jsonify(&#123;<span class="string">&#x27;error&#x27;</span>: <span class="string">&#x27;Missing required parameters&#x27;</span>&#125;), <span class="number">400</span></span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 调用模型能力</span></span><br><span class="line">    result = translate_text(text, target_language)</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 返回结果</span></span><br><span class="line">    <span class="keyword">return</span> jsonify(&#123;</span><br><span class="line">        <span class="string">&#x27;success&#x27;</span>: <span class="literal">True</span>,</span><br><span class="line">        <span class="string">&#x27;result&#x27;</span>: result</span><br><span class="line">    &#125;)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    port = <span class="number">3000</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">f&#x27;MCP Server running on port <span class="subst">&#123;port&#125;</span>&#x27;</span>)</span><br><span class="line">    app.run(host=<span class="string">&#x27;0.0.0.0&#x27;</span>, port=port)</span><br></pre></td></tr></table></figure>
 
-<h3 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">-d</span><br><span class="line">#容器后台运行</span><br><span class="line">--restart=always</span><br><span class="line"># 容器重启策略, always 在容器退出时总是重启容器</span><br><span class="line">--net host</span><br><span class="line">#容器和宿主机共用网络(注意端口冲突)</span><br><span class="line">--hostname rabbit1</span><br><span class="line">#容器的主机名为 rabbit1，容器内部的hostname</span><br><span class="line">--name rabbit1</span><br><span class="line">#容器名为rabbit1，在宿主机上运行“docker ps”命令时显示的名称</span><br><span class="line">-v /data/rabbitmq:/var/lib/rabbitmq</span><br><span class="line">#将宿主机目录/data/rabbitmq挂载到容器的/var/lib/rabbitmq目录</span><br><span class="line">-v /data/rabbitmq/hosts:/etc/hosts</span><br><span class="line">#将宿主机目录/data/rabbitmq/hosts文件挂载到容器的/etc/hosts文件</span><br><span class="line">-e RABBITMQ_DEFAULT_USER=user01</span><br><span class="line">#设置rabbitmq默认用户为user01</span><br><span class="line">-e RABBITMQ_DEFAULT_PASS=password01</span><br><span class="line">#设置rabbitmq默认密码为password01</span><br><span class="line">-e RABBITMQ_ERLANG_COOKIE=&#x27;secret cookie&#x27;</span><br><span class="line">#设置rabbitmq的cookie为“secret cookie”，可以自定义为其他文本，三个容器保持一致即可。</span><br><span class="line">rabbitmq:3.8.7-management</span><br><span class="line">#使用rabbitmq:3.8.7-management这个镜像</span><br></pre></td></tr></table></figure>
+<p>要启动这个服务，只需运行：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install flask</span><br><span class="line">python mcp-server.py</span><br></pre></td></tr></table></figure>
 
-<p><em><strong>三台机器都执行上面的命令,hostname和容器name需要修改</strong></em></p>
-<h2 id="将节点2-3加入集群"><a href="#将节点2-3加入集群" class="headerlink" title="将节点2,3加入集群"></a>将节点2,3加入集群</h2><p>在rabbit2机器进入容器的命令行</p>
-<pre><code>docker exec -it rabbit2 /bin/bash
-加入集群
-rabbitmqctl stop_app
-rabbitmqctl join_cluster rabbit@rabbit1
-rabbitmqctl join_cluster rabbit@rabbit1 --ram  //表示该节点为内存节点，默认为磁盘节点。
-rabbitmqctl start_app
-rabbit3执行相同的命令
+<p>这个简单的MCP Server实现了一个翻译能力，客户端可以通过POST请求调用这个能力。</p>
+<h1 id="MCP-Client"><a href="#MCP-Client" class="headerlink" title="MCP Client"></a>MCP Client</h1><p>MCP Client是应用开发者用来调用MCP Server提供的模型能力的工具。它的主要职责包括：</p>
+<ol>
+<li><strong>发现能力</strong>：了解MCP Server提供了哪些能力及其接口定义。</li>
+<li><strong>构造请求</strong>：根据能力的接口定义，构造合法的请求参数。</li>
+<li><strong>发送请求</strong>：将请求发送给MCP Server。</li>
+<li><strong>处理响应</strong>：接收并处理来自MCP Server的响应结果。</li>
+</ol>
+<p>MCP Client可以是一个独立的SDK，也可以是应用代码中的一部分。</p>
+<h2 id="MCP-Client快速入门"><a href="#MCP-Client快速入门" class="headerlink" title="MCP Client快速入门"></a>MCP Client快速入门</h2><p>以下是一个简单的MCP Client实现示例（Python版本），用于调用上述MCP Server提供的翻译能力：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="comment"># mcp-client.py</span></span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MCPClient</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, server_url</span>):</span><br><span class="line">        <span class="variable language_">self</span>.server_url = server_url</span><br><span class="line">    </span><br><span class="line">    <span class="comment"># 调用翻译能力</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">translate</span>(<span class="params">self, text, target_language</span>):</span><br><span class="line">        <span class="keyword">try</span>:</span><br><span class="line">            response = requests.post(</span><br><span class="line">                <span class="string">f&#x27;<span class="subst">&#123;self.server_url&#125;</span>/mcp/translate&#x27;</span>,</span><br><span class="line">                json=&#123;</span><br><span class="line">                    <span class="string">&#x27;text&#x27;</span>: text,</span><br><span class="line">                    <span class="string">&#x27;targetLanguage&#x27;</span>: target_language</span><br><span class="line">                &#125;</span><br><span class="line">            )</span><br><span class="line">            response.raise_for_status()  <span class="comment"># 抛出HTTP错误</span></span><br><span class="line">            <span class="keyword">return</span> response.json()</span><br><span class="line">        <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">            <span class="built_in">print</span>(<span class="string">f&#x27;Error calling MCP Server: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&#x27;</span>)</span><br><span class="line">            <span class="keyword">raise</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 使用示例</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">main</span>():</span><br><span class="line">    <span class="comment"># 创建MCP客户端</span></span><br><span class="line">    client = MCPClient(<span class="string">&#x27;http://localhost:3000&#x27;</span>)</span><br><span class="line">    </span><br><span class="line">    <span class="keyword">try</span>:</span><br><span class="line">        <span class="comment"># 调用翻译能力</span></span><br><span class="line">        result = client.translate(<span class="string">&#x27;Hello, world!&#x27;</span>, <span class="string">&#x27;Chinese&#x27;</span>)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&#x27;Translation result:&#x27;</span>, result)</span><br><span class="line">    <span class="keyword">except</span> Exception <span class="keyword">as</span> e:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&#x27;Failed to translate: <span class="subst">&#123;<span class="built_in">str</span>(e)&#125;</span>&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    main()</span><br></pre></td></tr></table></figure>
 
-查询集群状态
-rabbitmqctl cluster_status
-</code></pre>
-<h3 id="特别说明："><a href="#特别说明：" class="headerlink" title="特别说明："></a>特别说明：</h3><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line"># 在上述部署已完成的情况下更改节点模式(硬盘模式-disc、内存模式-ram)</span><br><span class="line"># 更改节点: rabbit@rabbit2为硬盘模式,操作如下：</span><br><span class="line"># 进入任意容器内</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 stop_app</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 change_cluster_node_type disc</span><br><span class="line">rabbitmqctl -n rabbit@rabbit2 start_app</span><br></pre></td></tr></table></figure>
+<p>要运行这个客户端，需要先安装依赖：</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">pip install requests</span><br><span class="line">python mcp-client.py</span><br></pre></td></tr></table></figure>
 
-<h2 id="配置镜像集群策略"><a href="#配置镜像集群策略" class="headerlink" title="配置镜像集群策略"></a>配置镜像集群策略</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">新添加用户</span><br><span class="line">rabbitmqctl list_users     //查看用户列表</span><br><span class="line">rabbitmqctl add_user admin 123456   //新增用户、密码</span><br><span class="line">rabbitmqctl set_user_tags admin administrator  // 设置admin用户标记，administrator表示最高权限</span><br><span class="line">rabbitmqctl set_permissions -p &quot;/&quot; admin &quot;.*&quot; &quot;.*&quot; &quot;.*&quot;   //设置权限</span><br></pre></td></tr></table></figure>
-
-<h3 id="开启镜像集群模式"><a href="#开启镜像集群模式" class="headerlink" title="开启镜像集群模式"></a>开启镜像集群模式</h3><p>搭建镜像集群是在web控制台完成的，主要操作就是在Admin界面添加一个Policy<br>添加策略：登录rabbitmq管理页面 ——&gt; Admin ——&gt; Policies ——&gt; Add &#x2F; update a policy，填写对应的镜像策略。<br><img src="/images/article_image/rabbitmq_mirror_1.png" alt="Alt"><br><img src="/images/article_image/rabbitmq_mirror_2.png" alt="Alt"></p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">Policy参数含义</span><br><span class="line">pattern: 队列名字的通配符 或者 ^ 匹配符，只有一个^代表匹配所有</span><br><span class="line">ha-mode：镜像队列提供了三种模式：</span><br><span class="line">        all：全部的节点队列都做镜像；</span><br><span class="line">        exactly：指定镜像队列的节点最高镜像数量；</span><br><span class="line">        nodes：只为指定具体节点配置镜像队列；</span><br><span class="line">ha-sync-mode ：节点之前的同步模式。有自动和手动两种，默认是手动，这里设置为自动。</span><br></pre></td></tr></table></figure>
-
-<p>设置完成并添加了这个策略后，新建的和已存在的队列默认会支持此策略。</p>
-<p>出现如下图所示，表示配置完成<br><img src="/images/article_image/rabbitmq_mirror_3.png" alt="Alt"><br><em><strong>到此，镜像集群部署工作完成。</strong></em></p>
-<h1 id="RabbitMQ监控"><a href="#RabbitMQ监控" class="headerlink" title="RabbitMQ监控"></a>RabbitMQ监控</h1><p>使用两种流行的工具介绍RabbitMQ监视： Prometheus，一个监视工具包；和Grafana，一个度量可视化系统。<br>从3.8.0版开始，RabbitMQ附带了内置的Prometheus＆Grafana支持。<br>Rabbitmq_prometheus插件随附了对Prometheus度量标准收集器的支持。该插件以Prometheus文本格式在专用TCP端口上公开所有RabbitMQ指标。<br>这些度量标准提供了对RabbitMQ节点状态和运行时的深入了解。他们使有关RabbitMQ的行为，使用它的应用程序以及各种基础结构元素的推理变得更加明智。</p>
-<h2 id="启用rabbitmq-prometheus"><a href="#启用rabbitmq-prometheus" class="headerlink" title="启用rabbitmq_prometheus"></a>启用rabbitmq_prometheus</h2><figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">在所有节点上启用rabbitmq_prometheus 插件</span><br><span class="line">rabbitmq-plugins enable rabbitmq_prometheus</span><br></pre></td></tr></table></figure>
-
-<p>获取指标，如下所示有监控指标出现，即表示监控插件开启</p>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">curl -s localhost:15692/metrics | head -n 3</span><br><span class="line"># TYPE erlang_mnesia_held_locks gauge</span><br><span class="line"># HELP erlang_mnesia_held_locks Number of held locks.</span><br><span class="line">erlang_mnesia_held_locks 0</span><br></pre></td></tr></table></figure>
+<p>这个简单的MCP Client展示了如何构造请求并调用MCP Server提供的翻译能力。</p>
+<h1 id="MCP协议的优势"><a href="#MCP协议的优势" class="headerlink" title="MCP协议的优势"></a>MCP协议的优势</h1><ol>
+<li><strong>标准化</strong>：提供统一的接口定义，使得不同的模型能力可以通过相同的方式被调用。</li>
+<li><strong>解耦</strong>：将模型实现和应用逻辑解耦，使得双方可以独立演进。</li>
+<li><strong>可扩展</strong>：新的模型能力可以很容易地添加到现有系统中，而不影响已有的应用。</li>
+<li><strong>易于使用</strong>：应用开发者无需了解复杂的模型细节，只需通过简单的接口调用即可使用模型能力。</li>
+</ol>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>MCP协议为连接AI模型能力和应用提供了一种标准化的方式，它通过定义清晰的接口和通信协议，使得模型提供方和应用开发方能够更加高效地合作。通过MCP Server和MCP Client的实现，我们可以看到这种协议如何简化了模型能力的封装和调用过程。</p>
+<p>随着AI技术的不断发展，模型能力会变得越来越复杂和多样化，而MCP协议的价值也将越来越明显。它不仅可以降低开发成本，还可以促进AI能力的共享和重用，从而加速AI应用的创新和落地。 </p>
 ]]></content>
       <categories>
-        <category>数据库</category>
-        <category>RabbitMQ</category>
+        <category>MCP</category>
       </categories>
       <tags>
-        <tag>Docker</tag>
-        <tag>rabbitmq</tag>
+        <tag>mcp</tag>
       </tags>
   </entry>
   <entry>
